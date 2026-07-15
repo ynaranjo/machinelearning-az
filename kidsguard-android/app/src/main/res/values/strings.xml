@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KidsGuard</string>
+
+    <!-- Genéricos -->
+    <string name="ok">Aceptar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="grant">Conceder</string>
+    <string name="done">Listo</string>
+
+    <!-- Launcher infantil -->
+    <string name="parent_access">Acceso para adultos</string>
+    <string name="no_apps_allowed">Aún no hay apps permitidas.\nPídele a un adulto que las agregue desde el panel de control.</string>
+    <string name="time_left_fmt">Quedan %1$s</string>
+
+    <!-- PIN -->
+    <string name="pin_enter_title">Introduce el PIN de adulto</string>
+    <string name="pin_setup_title">Crea un PIN de adulto</string>
+    <string name="pin_change_title">Nuevo PIN de adulto</string>
+    <string name="pin_hint">PIN (4 a 8 dígitos)</string>
+    <string name="pin_confirm_hint">Confirma el PIN</string>
+    <string name="pin_error_wrong">PIN incorrecto</string>
+    <string name="pin_error_short">El PIN debe tener al menos 4 dígitos</string>
+    <string name="pin_error_mismatch">Los PIN no coinciden</string>
+    <string name="pin_saved">PIN guardado</string>
+
+    <!-- Panel de control -->
+    <string name="dashboard_title">Panel de control parental</string>
+    <string name="child_mode">Modo niños</string>
+    <string name="child_mode_desc">Cuando está activo, solo se pueden usar las apps permitidas.</string>
+    <string name="child_mode_on">Modo niños activado</string>
+    <string name="child_mode_off">Modo niños desactivado</string>
+    <string name="btn_apps">📱  Apps permitidas</string>
+    <string name="btn_limits">⏱  Límites de tiempo</string>
+    <string name="btn_usage">📊  Uso de hoy</string>
+    <string name="btn_setup">🔐  Permisos del sistema</string>
+    <string name="btn_change_pin">🔑  Cambiar PIN</string>
+    <string name="btn_launcher_settings">🏠  Cambiar launcher predeterminado</string>
+    <string name="missing_permissions_title">Faltan permisos</string>
+    <string name="missing_permissions_msg">Para activar el modo niños, primero concede el acceso a datos de uso y el permiso de mostrar sobre otras apps.</string>
+    <string name="set_launcher_title">Establecer como pantalla de inicio</string>
+    <string name="set_launcher_msg">Para una protección completa, establece KidsGuard como launcher predeterminado. Así se abrirá automáticamente al encender el dispositivo y al pulsar el botón de inicio.</string>
+
+    <!-- Selección de apps -->
+    <string name="app_selection_title">Apps permitidas</string>
+    <string name="app_selection_hint">Marca las apps que tu hijo puede usar. Todas las demás quedarán bloqueadas.</string>
+
+    <!-- Límites de tiempo -->
+    <string name="limits_title">Límites de tiempo</string>
+    <string name="daily_limit">Límite diario de uso</string>
+    <string name="daily_limit_desc">Tiempo máximo total de uso de apps al día.</string>
+    <string name="bedtime">Hora de dormir</string>
+    <string name="bedtime_desc">Bloquea todas las apps durante este horario.</string>
+    <string name="bedtime_from">Desde</string>
+    <string name="bedtime_to">Hasta</string>
+    <string name="minutes_fmt">%1$d min</string>
+    <string name="per_app_hint">💡 Para poner un límite a una app concreta, entra en «Uso de hoy» y toca la app.</string>
+
+    <!-- Uso -->
+    <string name="usage_title">Uso de hoy</string>
+    <string name="usage_total_fmt">Uso total de hoy: %1$s</string>
+    <string name="no_limit">Sin límite</string>
+    <string name="limit_fmt">Límite: %1$d min</string>
+    <string name="set_limit_title">Límite diario para %1$s</string>
+    <string name="set_limit_hint">Minutos (vacío = sin límite)</string>
+
+    <!-- Configuración de permisos -->
+    <string name="setup_title">Permisos del sistema</string>
+    <string name="setup_intro">KidsGuard necesita estos permisos para proteger el dispositivo:</string>
+    <string name="perm_usage_title">Acceso a datos de uso</string>
+    <string name="perm_usage_desc">Necesario para detectar qué app está abierta y poder bloquearla.</string>
+    <string name="perm_overlay_title">Mostrar sobre otras apps</string>
+    <string name="perm_overlay_desc">Necesario para mostrar la pantalla de bloqueo encima de las apps no permitidas.</string>
+    <string name="perm_notif_title">Notificaciones</string>
+    <string name="perm_notif_desc">Muestra una notificación mientras la protección está activa.</string>
+    <string name="perm_admin_title">Administrador de dispositivo</string>
+    <string name="perm_admin_desc">Evita que el niño desinstale KidsGuard fácilmente.</string>
+    <string name="perm_launcher_title">Launcher predeterminado</string>
+    <string name="perm_launcher_desc">Hace que KidsGuard sea la pantalla de inicio y se abra al encender el dispositivo.</string>
+
+    <!-- Bloqueo -->
+    <string name="blocked_not_allowed_title">App no permitida</string>
+    <string name="blocked_not_allowed_msg">Esta app no está en la lista de apps permitidas. Pídele a un adulto que la agregue.</string>
+    <string name="blocked_daily_title">¡Se acabó el tiempo por hoy!</string>
+    <string name="blocked_daily_msg">Ya usaste todo tu tiempo de pantalla de hoy. ¡Mañana podrás seguir jugando!</string>
+    <string name="blocked_app_limit_title">Tiempo agotado para esta app</string>
+    <string name="blocked_app_limit_msg">Ya usaste todo el tiempo permitido para esta app hoy.</string>
+    <string name="blocked_bedtime_title">Hora de dormir 🌙</string>
+    <string name="blocked_bedtime_msg">Es hora de descansar. Las apps volverán a estar disponibles mañana.</string>
+    <string name="btn_go_home">Volver al inicio</string>
+
+    <!-- Servicio -->
+    <string name="notif_channel_name">Protección KidsGuard</string>
+    <string name="notif_title">KidsGuard activo</string>
+    <string name="notif_text">Protegiendo este dispositivo</string>
+
+    <!-- Device admin -->
+    <string name="admin_explanation">Activa el administrador de dispositivo para evitar que KidsGuard sea desinstalado sin permiso.</string>
+    <string name="admin_disable_warning">Si desactivas esta opción, el control parental podrá ser desinstalado.</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#4F6DF5</color>
+    <color name="primary_dark">#3550C8</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="secondary">#FFB300</color>
+    <color name="background_kids">#F0F4FF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="text_primary">#1A1B2E</color>
+    <color name="text_secondary">#5A5D72</color>
+    <color name="error">#D32F2F</color>
+    <color name="success">#2E7D32</color>
+    <color name="ic_launcher_background">#4F6DF5</color>
+</resources>
