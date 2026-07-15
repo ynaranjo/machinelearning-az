@@ -105,3 +105,153 @@ introduce el PIN.
   Ajustes en cuanto se abre.
 - Si el niño conoce el PIN del adulto, toda la protección queda anulada:
   elige un PIN que no conozca.
+- El bloqueo actual sondea la app en primer plano una vez por segundo
+  (`AppMonitorService`), lo que deja una ventana de ~1s en la que una app no
+  permitida es visible antes de bloquearse. Ver «Robustez del bloqueo» abajo.
+- No hay sincronización entre dispositivos, backend, ni forma de administrar
+  el dispositivo del hijo de forma remota: todo es local y manual en el
+  propio dispositivo.
+
+---
+
+## 🚧 Hoja de ruta hacia una app completa, profesional y competitiva
+
+Esta primera versión es un MVP funcional que cubre el caso de uso central
+(lista blanca de apps + bloqueo + arranque automático). Para competir de
+verdad con Kids Place, Google Family Link, Qustodio o FamiSafe, falta lo
+siguiente:
+
+### 1. Robustez del bloqueo (crítico)
+
+- [ ] **Sustituir el polling por un `AccessibilityService`**: detecta el
+  cambio de app en tiempo real (evento `TYPE_WINDOW_STATE_CHANGED`) en vez
+  de sondear cada segundo — cierra la ventana de 1s en la que una app
+  prohibida es visible.
+- [ ] **Modo Device Owner vía aprovisionamiento QR** (`DevicePolicyManager` +
+  NFC/QR en dispositivo recién reseteado): permite `LockTask` (kiosco real),
+  ocultar la barra de estado, bloquear ajustes por completo y impedir
+  factory reset — muy superior al modo *Device Admin* actual.
+- [ ] **`LockTaskMode` / Screen Pinning** como alternativa sin *device
+  owner* para reforzar el modo niños en apps individuales.
+- [ ] Detectar y bloquear el **modo seguro (Safe Mode)**, que en muchos
+  fabricantes permite saltarse apps de terceros.
+- [ ] Reforzar contra desinstalación por ADB y contra revocar permisos
+  especiales manualmente (detectar y re-solicitar, notificar al adulto).
+- [ ] Persistir el estado del servicio con `WorkManager` (además de
+  `START_STICKY`) para sobrevivir a *doze mode* y a fabricantes agresivos
+  matando procesos en segundo plano (Xiaomi, Huawei, Samsung).
+
+### 2. Funcionalidades que tienen Kids Place / Family Link y aquí faltan
+
+- [ ] **Filtrado de contenido web** (navegador integrado con lista negra de
+  dominios / SafeSearch forzado) — hoy solo se permite o bloquea el
+  navegador entero.
+- [ ] **Control de instalación/desinstalación de apps y compras** (bloquear
+  Play Store o exigir PIN para instalar, desinstalar o comprar).
+- [ ] **Múltiples perfiles de hijos** con distintas listas blancas, límites
+  y horarios por perfil (hoy solo hay una configuración global).
+- [ ] **Control y monitorización remota** desde el móvil del adulto (app
+  complementaria o panel web) sin tener que tener el dispositivo del niño
+  en la mano.
+- [ ] **Notificaciones al adulto**: intento de abrir una app bloqueada,
+  límite alcanzado, desinstalación intentada, dispositivo apagado/reiniciado.
+- [ ] **Reportes de uso semanales/mensuales** con gráficos (no solo el día
+  actual) y exportación/histórico persistente (hoy el uso se resetea cada
+  día y no se conserva).
+- [ ] **Geolocalización y geovallas** (zona segura / alerta de salida).
+- [ ] **Modo "Escuela"** — perfil temporal más restrictivo activable por
+  horario o con un toque, sin tocar la configuración normal.
+- [ ] **Categorías de apps** (juegos, educativas, redes sociales) para
+  aplicar reglas por categoría en vez de app por app.
+- [ ] **Extensión de tiempo bajo petición**: el niño solicita más tiempo
+  desde la pantalla de bloqueo y el adulto lo aprueba remotamente.
+
+### 3. Seguridad y recuperación
+
+- [ ] **Recuperación de PIN olvidado** (pregunta de seguridad, verificación
+  por correo/SMS, o código maestro) — hoy si se olvida el PIN no hay forma
+  de recuperar el acceso sin desinstalar.
+- [ ] **Desbloqueo biométrico** (huella/rostro) como alternativa al PIN para
+  el adulto.
+- [ ] Cifrar la configuración sensible con `EncryptedSharedPreferences` /
+  Jetpack Security en vez de `SharedPreferences` planas (el hash del PIN ya
+  usa salt, pero el resto de datos va sin cifrar).
+- [ ] Ofuscación y *minify* con R8 en el build de release
+  (`isMinifyEnabled = true` está desactivado actualmente).
+- [ ] Auditoría de seguridad (OWASP MASVS) antes de publicar.
+
+### 4. Arquitectura y calidad del código
+
+- [ ] Migrar a **MVVM** con `ViewModel` + `StateFlow`/`LiveData` en vez de
+  lógica directa en las `Activity`.
+- [ ] Inyección de dependencias con **Hilt** en vez de instanciar
+  `PreferencesManager` manualmente en cada pantalla.
+- [ ] Persistencia con **Room** para historial de uso, perfiles y reglas
+  (las `SharedPreferences` con JSON manual no escalan a multi-perfil ni a
+  histórico).
+- [ ] **Corrutinas/Flow** para operaciones asíncronas en vez de bloquear el
+  hilo principal al leer preferencias.
+- [ ] Modularización (`:core`, `:data`, `:feature-launcher`,
+  `:feature-parent`) si el proyecto crece.
+- [ ] Tests: unitarios (`PreferencesManager`, `TimeRules`, evaluación de
+  bloqueo), instrumentados (`AppMonitorService`) y de UI (Espresso) — hoy no
+  hay ningún test.
+- [ ] Linting automático (`ktlint`/`detekt`) integrado en CI.
+- [ ] `isMinifyEnabled` + reglas ProGuard reales para el build de release.
+
+### 5. UX / UI
+
+- [ ] Asistente de configuración inicial (*onboarding wizard*) que guíe
+  paso a paso en vez de pantallas sueltas.
+- [ ] Tema oscuro completo y soporte de tablets (layouts adaptativos, hoy
+  la cuadrícula es fija a 4 columnas).
+- [ ] Accesibilidad: `contentDescription` completos, tamaños de fuente
+  dinámicos, soporte TalkBack.
+- [ ] Internacionalización real (`values-en`, `values-pt`…) — hoy todo el
+  texto está *hardcodeado* en español.
+- [ ] Animaciones y pulido visual del launcher infantil (hoy es una
+  cuadrícula estática).
+- [ ] Icono de app y branding definitivos (el icono actual es un
+  placeholder vectorial simple).
+
+### 6. CI/CD y distribución
+
+- [ ] Firma de release real: keystore gestionado con **Play App Signing** o
+  secrets de GitHub Actions (hoy el workflow genera un APK *sin firmar*).
+- [ ] Publicación automatizada a **Play Store** (interna → cerrada →
+  producción) con `fastlane` o el `google-github-actions/upload-google-play`.
+- [ ] Versionado semántico automático y *changelog* por release.
+- [ ] Reporte de cobertura de tests y *quality gate* en el pipeline.
+- [ ] Escaneo de seguridad de dependencias (Dependabot / Snyk).
+
+### 7. Cumplimiento legal y políticas de Google Play
+
+- [ ] **Política de privacidad** pública (obligatoria para publicar).
+- [ ] Cumplir la **Google Play Families Policy** si se distribuye como app
+  familiar (requisitos extra de privacidad, anuncios, contenido).
+- [ ] Formulario de **declaración de permisos especiales** en Play Console
+  (`PACKAGE_USAGE_STATS`, `SYSTEM_ALERT_WINDOW`, Accessibility si se añade)
+  — Google exige justificar cada uno o rechaza la publicación.
+- [ ] Sección **Data Safety** completa (qué datos se recogen, dónde se
+  almacenan, si se comparten).
+- [ ] Revisar cumplimiento **COPPA** (EE. UU.) / **GDPR-K** (UE) si se
+  recogen datos de menores, especialmente si se añade backend/nube.
+
+### 8. Backend y sincronización (para ser realmente competitivo)
+
+- [ ] Cuenta familiar en la nube (Firebase Auth o similar) para vincular
+  el dispositivo del hijo con el del adulto.
+- [ ] Sincronización de configuración/reportes vía Firestore o backend
+  propio, con notificaciones push (FCM) en tiempo real al adulto.
+- [ ] Panel web complementario para gestionar todo sin depender del móvil
+  del niño.
+
+### Priorización sugerida
+
+1. **Crítico para que el bloqueo sea confiable**: `AccessibilityService` en
+   vez de polling, cifrado de preferencias, recuperación de PIN.
+2. **Crítico para publicar en Play Store**: firma de release, política de
+   privacidad, formulario de permisos especiales, `isMinifyEnabled`.
+3. **Diferenciador competitivo**: perfiles múltiples, control remoto,
+   reportes históricos, notificaciones al adulto, filtrado web.
+4. **Pulido**: MVVM/Hilt/Room, tests, i18n, tema oscuro, onboarding.
