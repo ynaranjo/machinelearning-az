@@ -58,15 +58,28 @@ kidsguard-android/
 
 ## Compilación
 
+### Opción 1: Compilación automática con GitHub Actions ✅
+
+Cada push a la rama `claude/android-parental-control-wit63o` dispara un workflow que:
+- Compila versiones **Debug** y **Release** del APK
+- Las sube como artifacts (descargables durante 30 días)
+
+Ve a → **Actions** → **Build KidsGuard APK** → último run → **Artifacts**
+
+### Opción 2: Compilación local
+
 Requisitos: Android Studio (o SDK de Android 34) y JDK 17+.
 
 ```bash
 cd kidsguard-android
-./gradlew assembleDebug        # o abre la carpeta en Android Studio
+./gradlew assembleDebug        # Debug APK
+./gradlew assembleRelease      # Release APK (sin firmar)
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
-- `minSdk 26` (Android 8.0) · `targetSdk 34` (Android 14) · Kotlin 1.9 · AGP 8.5.
+### Especificaciones
+
+- `minSdk 26` (Android 8.0) · `targetSdk 34` (Android 14) · Kotlin 1.9 · AGP 8.5
 
 ## Primer uso
 
