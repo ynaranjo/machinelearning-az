@@ -3,13 +3,16 @@ package com.kidsguard.app.ui.parent
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
 import com.kidsguard.app.R
 import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.databinding.ActivityParentDashboardBinding
 import com.kidsguard.app.service.AppMonitorService
+import com.kidsguard.app.service.ServiceWatchdogWorker
 import com.kidsguard.app.ui.pin.PinSetupActivity
 import com.kidsguard.app.util.Permissions
 
@@ -33,6 +36,8 @@ class ParentDashboardActivity : AppCompatActivity() {
             if (updatingSwitch) return@setOnCheckedChangeListener
             if (checked) enableChildMode() else disableChildMode()
         }
+
+        setupBiometricSwitch()
 
         binding.btnApps.setOnClickListener {
             startActivity(Intent(this, AppSelectionActivity::class.java))
@@ -59,6 +64,24 @@ class ParentDashboardActivity : AppCompatActivity() {
         updatingSwitch = true
         binding.swChildMode.isChecked = prefs.childModeActive
         updatingSwitch = false
+
+        binding.tvModeHint.text = if (Permissions.hasAccessibility(this)) {
+            getString(R.string.child_mode_desc)
+        } else {
+            getString(R.string.child_mode_desc) + "\n" +
+                getString(R.string.accessibility_recommend)
+        }
+    }
+
+    private fun setupBiometricSwitch() {
+        val available = BiometricManager.from(this)
+            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) ==
+            BiometricManager.BIOMETRIC_SUCCESS
+        binding.rowBiometric.visibility = if (available) View.VISIBLE else View.GONE
+        binding.swBiometric.isChecked = prefs.biometricEnabled
+        binding.swBiometric.setOnCheckedChangeListener { _, checked ->
+            prefs.biometricEnabled = checked
+        }
     }
 
     private fun enableChildMode() {
@@ -79,6 +102,7 @@ class ParentDashboardActivity : AppCompatActivity() {
 
         prefs.childModeActive = true
         AppMonitorService.start(this)
+        ServiceWatchdogWorker.schedule(this)
         Toast.makeText(this, R.string.child_mode_on, Toast.LENGTH_SHORT).show()
 
         if (!Permissions.isDefaultLauncher(this)) {
@@ -96,6 +120,7 @@ class ParentDashboardActivity : AppCompatActivity() {
     private fun disableChildMode() {
         prefs.childModeActive = false
         AppMonitorService.stop(this)
+        ServiceWatchdogWorker.cancel(this)
         Toast.makeText(this, R.string.child_mode_off, Toast.LENGTH_SHORT).show()
     }
 }

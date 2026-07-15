@@ -38,6 +38,9 @@ class SetupActivity : AppCompatActivity() {
         binding.btnUsage.setOnClickListener {
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
+        binding.btnAccessibility.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
         binding.btnOverlay.setOnClickListener {
             startActivity(
                 Intent(
@@ -99,6 +102,7 @@ class SetupActivity : AppCompatActivity() {
 
     private fun refreshStatuses() {
         binding.tvStatusUsage.text = status(Permissions.hasUsageAccess(this))
+        binding.tvStatusAccessibility.text = status(Permissions.hasAccessibility(this))
         binding.tvStatusOverlay.text = status(Permissions.hasOverlay(this))
         binding.tvStatusNotif.text = status(Permissions.hasNotifications(this))
         binding.tvStatusAdmin.text = status(Permissions.isDeviceAdmin(this))

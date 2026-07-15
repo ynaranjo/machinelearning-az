@@ -19,6 +19,12 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 | 📊 Estadísticas de uso | El adulto ve cuánto tiempo se usó cada app hoy. |
 | 🔒 Anti-desinstalación | Administrador de dispositivo: para desinstalar hay que desactivarlo primero. Botón atrás y recientes neutralizados en las pantallas infantiles. |
 | 🚨 Seguridad | Las apps de emergencia y llamadas entrantes nunca se bloquean. |
+| ⚡ Bloqueo instantáneo *(v1.1)* | Servicio de accesibilidad que bloquea en el mismo instante en que la app pasa a primer plano, sin leer contenido de pantalla. El sondeo queda como respaldo. |
+| 👆 Biometría *(v1.1)* | El adulto puede entrar al panel con huella/rostro además del PIN. |
+| 🆘 Recuperación de PIN *(v1.1)* | Pregunta de seguridad para restablecer el PIN olvidado (respuesta guardada como hash con salt). |
+| 🔔 Alertas al adulto *(v1.1)* | Notificación cuando el niño intenta abrir una app bloqueada o cuando se revoca un permiso de protección. |
+| 🔐 Almacenamiento cifrado *(v1.1)* | Toda la configuración se guarda en `EncryptedSharedPreferences` (AES-256), con migración automática de datos previos. |
+| ♻️ Watchdog *(v1.1)* | `WorkManager` revive el servicio de vigilancia cada 15 min si un fabricante agresivo con la batería lo mata. |
 
 ## Estructura del proyecto
 
@@ -30,11 +36,15 @@ kidsguard-android/
 │   │   ├── PreferencesManager.kt        # PIN, lista blanca, límites, uso diario
 │   │   └── AppRepository.kt             # Apps instaladas / permitidas
 │   ├── model/AppInfo.kt
-│   ├── service/AppMonitorService.kt     # Servicio de vigilancia (foreground)
+│   ├── service/
+│   │   ├── AppBlockerAccessibilityService.kt  # Bloqueo instantáneo (v1.1)
+│   │   ├── AppMonitorService.kt         # Sondeo de respaldo + contador de uso
+│   │   └── ServiceWatchdogWorker.kt     # Watchdog con WorkManager (v1.1)
 │   ├── receiver/
 │   │   ├── BootReceiver.kt              # Arranque al encender el dispositivo
 │   │   └── AdminReceiver.kt             # Administrador de dispositivo
-│   ├── util/                            # Permisos, reglas horarias, motivos de bloqueo
+│   ├── util/                            # Permisos, reglas horarias, BlockEvaluator,
+│   │                                    # AdultNotifier (alertas al adulto)
 │   └── ui/
 │       ├── MainActivity.kt              # Entrada del adulto (pide PIN)
 │       ├── launcher/KidsHomeActivity.kt # Launcher infantil (HOME)
@@ -83,11 +93,13 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ## Primer uso
 
-1. Abre **KidsGuard** y crea el **PIN de adulto**.
+1. Abre **KidsGuard** y crea el **PIN de adulto** con su **pregunta de
+   seguridad** (permite recuperar el PIN si se olvida).
 2. Concede los permisos que pide la pantalla de configuración:
    - **Acceso a datos de uso** (detectar la app activa)
+   - **Servicio de accesibilidad** (bloqueo instantáneo — recomendado)
    - **Mostrar sobre otras apps** (pantalla de bloqueo)
-   - **Notificaciones** (servicio activo)
+   - **Notificaciones** (servicio activo y alertas al adulto)
    - **Administrador de dispositivo** (anti-desinstalación)
    - **Launcher predeterminado** (pantalla de inicio infantil)
 3. En el panel: elige las **apps permitidas** y los **límites de tiempo**.
@@ -105,9 +117,11 @@ introduce el PIN.
   Ajustes en cuanto se abre.
 - Si el niño conoce el PIN del adulto, toda la protección queda anulada:
   elige un PIN que no conozca.
-- El bloqueo actual sondea la app en primer plano una vez por segundo
-  (`AppMonitorService`), lo que deja una ventana de ~1s en la que una app no
-  permitida es visible antes de bloquearse. Ver «Robustez del bloqueo» abajo.
+- Si el servicio de accesibilidad no está activado, el bloqueo recae en el
+  sondeo de `AppMonitorService` (1 vez/segundo), que deja una ventana de ~1s
+  en la que una app no permitida es visible antes de bloquearse. Con el
+  servicio de accesibilidad activo (recomendado en la pantalla de permisos),
+  el bloqueo es instantáneo.
 - No hay sincronización entre dispositivos, backend, ni forma de administrar
   el dispositivo del hijo de forma remota: todo es local y manual en el
   propio dispositivo.
@@ -123,10 +137,10 @@ siguiente:
 
 ### 1. Robustez del bloqueo (crítico)
 
-- [ ] **Sustituir el polling por un `AccessibilityService`**: detecta el
-  cambio de app en tiempo real (evento `TYPE_WINDOW_STATE_CHANGED`) en vez
-  de sondear cada segundo — cierra la ventana de 1s en la que una app
-  prohibida es visible.
+- [x] **Sustituir el polling por un `AccessibilityService`** ✅ *(v1.1)*:
+  `AppBlockerAccessibilityService` bloquea en tiempo real con
+  `TYPE_WINDOW_STATE_CHANGED`; el sondeo queda como respaldo y contador de
+  tiempo de uso.
 - [ ] **Modo Device Owner vía aprovisionamiento QR** (`DevicePolicyManager` +
   NFC/QR en dispositivo recién reseteado): permite `LockTask` (kiosco real),
   ocultar la barra de estado, bloquear ajustes por completo y impedir
@@ -135,11 +149,13 @@ siguiente:
   owner* para reforzar el modo niños en apps individuales.
 - [ ] Detectar y bloquear el **modo seguro (Safe Mode)**, que en muchos
   fabricantes permite saltarse apps de terceros.
-- [ ] Reforzar contra desinstalación por ADB y contra revocar permisos
-  especiales manualmente (detectar y re-solicitar, notificar al adulto).
-- [ ] Persistir el estado del servicio con `WorkManager` (además de
-  `START_STICKY`) para sobrevivir a *doze mode* y a fabricantes agresivos
-  matando procesos en segundo plano (Xiaomi, Huawei, Samsung).
+- [x] Detectar la revocación manual de permisos especiales y **notificar al
+  adulto** ✅ *(v1.1)*: el servicio comprueba cada minuto que datos de uso,
+  superposición y accesibilidad sigan concedidos. *(Pendiente: reforzar
+  contra desinstalación por ADB.)*
+- [x] Persistir el estado del servicio con `WorkManager` ✅ *(v1.1)*:
+  `ServiceWatchdogWorker` relanza el servicio cada 15 min si el modo niños
+  está activo y el sistema lo mató (Xiaomi, Huawei, Samsung…).
 
 ### 2. Funcionalidades que tienen Kids Place / Family Link y aquí faltan
 
@@ -153,8 +169,10 @@ siguiente:
 - [ ] **Control y monitorización remota** desde el móvil del adulto (app
   complementaria o panel web) sin tener que tener el dispositivo del niño
   en la mano.
-- [ ] **Notificaciones al adulto**: intento de abrir una app bloqueada,
-  límite alcanzado, desinstalación intentada, dispositivo apagado/reiniciado.
+- [x] **Notificaciones al adulto** ✅ *(v1.1, parcial)*: intento de abrir una
+  app bloqueada y permisos de protección revocados, con cooldown anti-spam.
+  *(Pendiente: desinstalación intentada, dispositivo apagado/reiniciado —
+  requieren backend/push.)*
 - [ ] **Reportes de uso semanales/mensuales** con gráficos (no solo el día
   actual) y exportación/histórico persistente (hoy el uso se resetea cada
   día y no se conserva).
@@ -168,16 +186,16 @@ siguiente:
 
 ### 3. Seguridad y recuperación
 
-- [ ] **Recuperación de PIN olvidado** (pregunta de seguridad, verificación
-  por correo/SMS, o código maestro) — hoy si se olvida el PIN no hay forma
-  de recuperar el acceso sin desinstalar.
-- [ ] **Desbloqueo biométrico** (huella/rostro) como alternativa al PIN para
-  el adulto.
-- [ ] Cifrar la configuración sensible con `EncryptedSharedPreferences` /
-  Jetpack Security en vez de `SharedPreferences` planas (el hash del PIN ya
-  usa salt, pero el resto de datos va sin cifrar).
-- [ ] Ofuscación y *minify* con R8 en el build de release
-  (`isMinifyEnabled = true` está desactivado actualmente).
+- [x] **Recuperación de PIN olvidado** ✅ *(v1.1)*: pregunta de seguridad
+  configurada junto al PIN; la respuesta se guarda como hash SHA-256 + salt.
+  *(Pendiente: verificación por correo/SMS como segunda vía.)*
+- [x] **Desbloqueo biométrico** ✅ *(v1.1)*: huella/rostro como alternativa
+  al PIN (androidx.biometric), activable desde el panel.
+- [x] Cifrar la configuración con `EncryptedSharedPreferences` ✅ *(v1.1)*:
+  AES-256 vía Jetpack Security, con migración automática del almacén plano
+  anterior y *fallback* si el dispositivo no soporta el keystore.
+- [x] Ofuscación y *minify* con R8 en release ✅ *(v1.1)*:
+  `isMinifyEnabled = true` + `shrinkResources`.
 - [ ] Auditoría de seguridad (OWASP MASVS) antes de publicar.
 
 ### 4. Arquitectura y calidad del código
@@ -226,7 +244,9 @@ siguiente:
 
 ### 7. Cumplimiento legal y políticas de Google Play
 
-- [ ] **Política de privacidad** pública (obligatoria para publicar).
+- [x] **Política de privacidad** ✅ *(v1.1, borrador)*: ver
+  [`PRIVACY.md`](PRIVACY.md). *(Pendiente: alojarla en una URL pública y
+  revisión legal antes de publicar.)*
 - [ ] Cumplir la **Google Play Families Policy** si se distribuye como app
   familiar (requisitos extra de privacidad, anuncios, contenido).
 - [ ] Formulario de **declaración de permisos especiales** en Play Console

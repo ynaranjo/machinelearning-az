@@ -98,4 +98,32 @@
     <!-- Device admin -->
     <string name="admin_explanation">Activa el administrador de dispositivo para evitar que KidsGuard sea desinstalado sin permiso.</string>
     <string name="admin_disable_warning">Si desactivas esta opción, el control parental podrá ser desinstalado.</string>
+
+    <!-- Servicio de accesibilidad -->
+    <string name="accessibility_service_label">KidsGuard — Bloqueo de apps</string>
+    <string name="accessibility_service_desc">KidsGuard usa este servicio únicamente para detectar al instante qué app pasa a primer plano y bloquearla si un adulto no la ha permitido. No lee ni almacena el contenido de la pantalla.</string>
+    <string name="perm_accessibility_title">Servicio de accesibilidad</string>
+    <string name="perm_accessibility_desc">Bloqueo instantáneo al cambiar de app, sin retardo. Muy recomendado.</string>
+    <string name="accessibility_recommend">💡 Recomendado: activa el servicio de accesibilidad en «Permisos del sistema» para un bloqueo instantáneo.</string>
+
+    <!-- Recuperación de PIN -->
+    <string name="forgot_pin">¿Olvidaste el PIN?</string>
+    <string name="recovery_title">Recuperar PIN</string>
+    <string name="security_question_hint">Pregunta de seguridad (ej. nombre de tu primera mascota)</string>
+    <string name="security_answer_hint">Respuesta secreta</string>
+    <string name="security_answer_wrong">Respuesta incorrecta</string>
+    <string name="error_need_question">Escribe una pregunta de seguridad y su respuesta para poder recuperar el PIN</string>
+
+    <!-- Biometría -->
+    <string name="biometric_title">Desbloqueo de adulto</string>
+    <string name="biometric_prompt_subtitle">Confirma tu identidad con huella o rostro</string>
+    <string name="biometric_use_pin">Usar PIN</string>
+    <string name="biometric_switch">Desbloqueo con huella/rostro</string>
+
+    <!-- Alertas al adulto -->
+    <string name="alert_channel_name">Alertas para adultos</string>
+    <string name="alert_blocked_attempt_title">Intento de abrir una app bloqueada</string>
+    <string name="alert_blocked_attempt_text">«%1$s» intentó abrirse y fue bloqueada.</string>
+    <string name="alert_permission_lost_title">⚠️ Protección incompleta</string>
+    <string name="alert_permission_lost_text">Se desactivó: %1$s. Toca para restaurarlo.</string>
 </resources>

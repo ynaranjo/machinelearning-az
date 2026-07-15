@@ -18,20 +18,24 @@ import com.kidsguard.app.KidsGuardApp
 import com.kidsguard.app.R
 import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.ui.MainActivity
-import com.kidsguard.app.ui.block.BlockedActivity
-import com.kidsguard.app.util.BlockReason
-import com.kidsguard.app.util.TimeRules
+import com.kidsguard.app.util.AdultNotifier
+import com.kidsguard.app.util.BlockEvaluator
+import com.kidsguard.app.util.Permissions
 
 /**
- * Servicio en primer plano que vigila la app activa cada segundo.
- * Si la app no está permitida, o se agotó el tiempo, muestra la pantalla de bloqueo.
+ * Servicio en primer plano que sondea la app activa cada segundo.
+ *
+ * Con el servicio de accesibilidad activo, el bloqueo instantáneo ocurre
+ * allí; este servicio actúa como respaldo, lleva la cuenta del tiempo de
+ * uso (para los límites diarios y por app) y vigila que los permisos de
+ * protección sigan concedidos, avisando al adulto si se revocan.
  */
 class AppMonitorService : Service() {
 
     private lateinit var prefs: PreferencesManager
     private val handler = Handler(Looper.getMainLooper())
     private var lastForegroundPackage: String? = null
-    private var lastBlockAt = 0L
+    private var ticksSincePermissionCheck = 0
 
     private val tick = object : Runnable {
         override fun run() {
@@ -73,50 +77,35 @@ class AppMonitorService : Service() {
 
     private fun checkForegroundApp() {
         if (!prefs.childModeActive) return
+        maybeCheckPermissions()
 
         val foreground = currentForegroundPackage() ?: return
-        if (foreground == packageName || foreground in IGNORED_PACKAGES) return
+        if (BlockEvaluator.isIgnored(this, foreground)) return
 
-        val reason = evaluate(foreground)
+        val reason = BlockEvaluator.evaluate(this, prefs, foreground)
         if (reason == null) {
             // App permitida y dentro de los límites: contabilizar uso.
             prefs.addUsageSeconds(foreground, (POLL_INTERVAL_MS / 1000L).toInt())
             return
         }
-        block(foreground, reason)
+        BlockEvaluator.block(this, foreground, reason)
     }
 
-    private fun evaluate(packageName: String): BlockReason? {
-        if (packageName !in prefs.allowedApps) return BlockReason.NOT_ALLOWED
-
-        if (prefs.bedtimeEnabled &&
-            TimeRules.isInBedtime(prefs.bedtimeStartMinutes, prefs.bedtimeEndMinutes)
-        ) {
-            return BlockReason.BEDTIME
+    /** Cada ~60s comprueba que los permisos de protección sigan activos. */
+    private fun maybeCheckPermissions() {
+        if (++ticksSincePermissionCheck < PERMISSION_CHECK_TICKS) return
+        ticksSincePermissionCheck = 0
+        if (!Permissions.hasUsageAccess(this)) {
+            AdultNotifier.notifyPermissionLost(this, getString(R.string.perm_usage_title))
         }
-
-        val dailyLimit = prefs.dailyLimitMinutes
-        if (dailyLimit >= 0 && prefs.totalUsageSecondsToday() >= dailyLimit * 60) {
-            return BlockReason.DAILY_LIMIT
+        if (!Permissions.hasOverlay(this)) {
+            AdultNotifier.notifyPermissionLost(this, getString(R.string.perm_overlay_title))
         }
-
-        val appLimit = prefs.appLimitFor(packageName)
-        if (appLimit != null && prefs.usageSecondsFor(packageName) >= appLimit * 60) {
-            return BlockReason.APP_LIMIT
+        if (!Permissions.hasAccessibility(this)) {
+            AdultNotifier.notifyPermissionLost(
+                this, getString(R.string.perm_accessibility_title)
+            )
         }
-        return null
-    }
-
-    private fun block(blockedPackage: String, reason: BlockReason) {
-        val now = System.currentTimeMillis()
-        if (now - lastBlockAt < BLOCK_COOLDOWN_MS) return
-        lastBlockAt = now
-
-        val intent = Intent(this, BlockedActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            .putExtra(BlockedActivity.EXTRA_REASON, reason.name)
-            .putExtra(BlockedActivity.EXTRA_PACKAGE, blockedPackage)
-        startActivity(intent)
     }
 
     /**
@@ -157,22 +146,7 @@ class AppMonitorService : Service() {
         private const val NOTIFICATION_ID = 1001
         private const val POLL_INTERVAL_MS = 1000L
         private const val LOOKBACK_MS = 10_000L
-        private const val BLOCK_COOLDOWN_MS = 1500L
-
-        /**
-         * Paquetes del sistema que nunca se bloquean. Incluye la interfaz del sistema
-         * y las apps de emergencia/llamadas entrantes por seguridad.
-         */
-        private val IGNORED_PACKAGES = setOf(
-            "com.android.systemui",
-            "android",
-            "com.android.permissioncontroller",
-            "com.google.android.permissioncontroller",
-            "com.android.emergency",
-            "com.android.phone",
-            "com.android.incallui",
-            "com.google.android.dialer.incallui"
-        )
+        private const val PERMISSION_CHECK_TICKS = 60
 
         fun start(context: Context) {
             ContextCompat.startForegroundService(

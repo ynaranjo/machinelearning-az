@@ -12,6 +12,7 @@ import android.os.Process
 import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 import com.kidsguard.app.receiver.AdminReceiver
+import com.kidsguard.app.service.AppBlockerAccessibilityService
 
 object Permissions {
 
@@ -48,6 +49,16 @@ object Permissions {
 
     fun adminComponent(context: Context): ComponentName =
         ComponentName(context, AdminReceiver::class.java)
+
+    fun hasAccessibility(context: Context): Boolean {
+        val expected = ComponentName(context, AppBlockerAccessibilityService::class.java)
+        val enabled = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+        return enabled.split(':')
+            .any { ComponentName.unflattenFromString(it) == expected }
+    }
 
     fun isDefaultLauncher(context: Context): Boolean {
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)

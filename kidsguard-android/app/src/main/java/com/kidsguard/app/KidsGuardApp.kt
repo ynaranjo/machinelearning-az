@@ -12,17 +12,26 @@ class KidsGuardApp : Application() {
     }
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(
+        val monitor = NotificationChannel(
             CHANNEL_MONITOR,
             getString(R.string.notif_channel_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
             setShowBadge(false)
         }
-        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        val alerts = NotificationChannel(
+            CHANNEL_ALERTS,
+            getString(R.string.alert_channel_name),
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        getSystemService(NotificationManager::class.java).apply {
+            createNotificationChannel(monitor)
+            createNotificationChannel(alerts)
+        }
     }
 
     companion object {
         const val CHANNEL_MONITOR = "kidsguard_monitor"
+        const val CHANNEL_ALERTS = "kidsguard_alerts"
     }
 }
