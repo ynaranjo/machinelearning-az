@@ -33,6 +33,7 @@
     <string name="child_mode_off">Modo niños desactivado</string>
     <string name="btn_apps">📱  Apps permitidas</string>
     <string name="btn_limits">⏱  Límites de tiempo</string>
+    <string name="btn_web_filter">🌐  Navegador y filtrado web</string>
     <string name="btn_usage">📊  Uso de hoy</string>
     <string name="btn_setup">🔐  Permisos del sistema</string>
     <string name="btn_change_pin">🔑  Cambiar PIN</string>
@@ -136,6 +137,23 @@
     <string name="biometric_prompt_subtitle">Confirma tu identidad con huella o rostro</string>
     <string name="biometric_use_pin">Usar PIN</string>
     <string name="biometric_switch">Desbloqueo con huella/rostro</string>
+
+    <!-- Navegador y filtrado web -->
+    <string name="browser">Navegador</string>
+    <string name="go">Ir</string>
+    <string name="url_hint">Busca o escribe una dirección</string>
+    <string name="web_blocked_title">Página bloqueada</string>
+    <string name="web_blocked_msg">«%1$s» no está permitida. Pídele a un adulto que la agregue.</string>
+    <string name="web_filter_title">Navegador y filtrado web</string>
+    <string name="web_enable_browser">Navegador infantil</string>
+    <string name="web_whitelist_mode">Solo sitios permitidos</string>
+    <string name="web_whitelist_mode_desc">Si está activo, solo se pueden abrir los dominios de la lista. Si no, se permite todo salvo los bloqueados.</string>
+    <string name="web_allowed_list">Sitios permitidos</string>
+    <string name="web_blocked_list">Sitios bloqueados</string>
+    <string name="web_whitelist_hint">Solo se podrán abrir estos dominios (y sus subdominios).</string>
+    <string name="web_blacklist_hint">Estos dominios (y sus subdominios) quedarán bloqueados.</string>
+    <string name="web_add_domain">Añadir dominio</string>
+    <string name="web_domain_hint">ejemplo.com</string>
 
     <!-- Perfiles -->
     <string name="btn_profiles">👧  Perfiles de hijos</string>

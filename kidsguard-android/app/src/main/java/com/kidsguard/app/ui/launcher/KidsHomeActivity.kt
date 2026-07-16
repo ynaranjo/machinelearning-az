@@ -18,6 +18,7 @@ import com.kidsguard.app.data.AppRepository
 import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.databinding.ActivityKidsHomeBinding
 import com.kidsguard.app.service.AppMonitorService
+import com.kidsguard.app.ui.browser.KidsBrowserActivity
 import com.kidsguard.app.ui.pin.PinActivity
 import com.kidsguard.app.ui.pin.PinSetupActivity
 import com.kidsguard.app.util.DeviceOwnerManager
@@ -47,6 +48,10 @@ class KidsHomeActivity : AppCompatActivity() {
         val spanCount = (resources.configuration.screenWidthDp / 96).coerceIn(3, 8)
         binding.rvApps.layoutManager = GridLayoutManager(this, spanCount)
         binding.rvApps.adapter = adapter
+
+        binding.btnBrowser.setOnClickListener {
+            startActivity(Intent(this, KidsBrowserActivity::class.java))
+        }
 
         binding.btnParent.setOnClickListener {
             val next = if (prefs.isPinSet) {
@@ -110,6 +115,8 @@ class KidsHomeActivity : AppCompatActivity() {
     private fun refresh() {
         val profile = prefs.activeProfile
         binding.tvProfile.text = "${profile.emoji} ${profile.name}"
+
+        binding.btnBrowser.visibility = if (prefs.browserEnabled) View.VISIBLE else View.GONE
 
         val apps = AppRepository.getAllowedApps(this, prefs.allowedApps)
         adapter.submit(apps)

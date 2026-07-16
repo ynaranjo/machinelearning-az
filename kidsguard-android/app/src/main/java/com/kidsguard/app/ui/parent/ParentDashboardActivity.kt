@@ -46,6 +46,9 @@ class ParentDashboardActivity : AppCompatActivity() {
         binding.btnLimits.setOnClickListener {
             startActivity(Intent(this, TimeLimitsActivity::class.java))
         }
+        binding.btnWebFilter.setOnClickListener {
+            startActivity(Intent(this, WebFilterActivity::class.java))
+        }
         binding.btnUsage.setOnClickListener {
             startActivity(Intent(this, UsageStatsActivity::class.java))
         }

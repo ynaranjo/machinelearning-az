@@ -33,6 +33,7 @@
     <string name="child_mode_off">Kids mode disabled</string>
     <string name="btn_apps">📱  Allowed apps</string>
     <string name="btn_limits">⏱  Time limits</string>
+    <string name="btn_web_filter">🌐  Browser &amp; web filtering</string>
     <string name="btn_usage">📊  Today\'s usage</string>
     <string name="btn_setup">🔐  System permissions</string>
     <string name="btn_change_pin">🔑  Change PIN</string>
@@ -136,6 +137,23 @@
     <string name="biometric_prompt_subtitle">Confirm your identity with fingerprint or face</string>
     <string name="biometric_use_pin">Use PIN</string>
     <string name="biometric_switch">Fingerprint/face unlock</string>
+
+    <!-- Browser & web filtering -->
+    <string name="browser">Browser</string>
+    <string name="go">Go</string>
+    <string name="url_hint">Search or type an address</string>
+    <string name="web_blocked_title">Page blocked</string>
+    <string name="web_blocked_msg">“%1$s” is not allowed. Ask an adult to add it.</string>
+    <string name="web_filter_title">Browser &amp; web filtering</string>
+    <string name="web_enable_browser">Kids browser</string>
+    <string name="web_whitelist_mode">Allowed sites only</string>
+    <string name="web_whitelist_mode_desc">When on, only the domains in the list can be opened. When off, everything is allowed except blocked ones.</string>
+    <string name="web_allowed_list">Allowed sites</string>
+    <string name="web_blocked_list">Blocked sites</string>
+    <string name="web_whitelist_hint">Only these domains (and their subdomains) can be opened.</string>
+    <string name="web_blacklist_hint">These domains (and their subdomains) will be blocked.</string>
+    <string name="web_add_domain">Add domain</string>
+    <string name="web_domain_hint">example.com</string>
 
     <!-- Profiles -->
     <string name="btn_profiles">👧  Child profiles</string>

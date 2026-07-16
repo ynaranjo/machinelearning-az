@@ -31,6 +31,7 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 | ➕ Tiempo extra *(v1.4)* | Desde la pantalla de bloqueo, el adulto concede 15/30/60 min extra con su PIN, sin desactivar el modo niños. |
 | 🗂️ Límites por categoría *(v1.5)* | Tiempo máximo diario por tipo de app (juegos, vídeo, social…), sumando el uso de todas las apps de la categoría. |
 | 🔐 Modo kiosco *(v1.6)* | Con *device owner* (ADB): LockTask sobre las apps permitidas, launcher fijado por política, barra de estado desactivada y modo seguro/factory reset bloqueados. |
+| 🌐 Filtrado web *(v1.7)* | Navegador infantil con lista negra/blanca de dominios por perfil, SafeSearch forzado y YouTube restringido. |
 | 👋 Asistente inicial *(v1.4)* | Pantalla de bienvenida que guía la configuración en 3 pasos: PIN → permisos → apps permitidas. |
 
 ## Estructura del proyecto
@@ -213,9 +214,12 @@ siguiente:
 
 ### 2. Funcionalidades que tienen Kids Place / Family Link y aquí faltan
 
-- [ ] **Filtrado de contenido web** (navegador integrado con lista negra de
-  dominios / SafeSearch forzado) — hoy solo se permite o bloquea el
-  navegador entero.
+- [x] **Filtrado de contenido web** ✅ *(v1.7)*: navegador infantil
+  integrado (`KidsBrowserActivity`) con filtrado de dominios por perfil en
+  modo lista negra o lista blanca, SafeSearch forzado en Google/Bing/
+  DuckDuckGo y modo restringido de YouTube por cabecera. El adulto gestiona
+  todo desde «Navegador y filtrado web». *(Pendiente: bloqueo por
+  categorías de contenido vía servicio DNS.)*
 - [ ] **Control de instalación/desinstalación de apps y compras** (bloquear
   Play Store o exigir PIN para instalar, desinstalar o comprar).
 - [x] **Múltiples perfiles de hijos** ✅ *(v1.2)*: perfiles con nombre y

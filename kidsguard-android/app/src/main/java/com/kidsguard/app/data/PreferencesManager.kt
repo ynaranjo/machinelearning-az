@@ -238,6 +238,26 @@ class PreferencesManager(context: Context) {
         get() = prefs.getInt(pk(KEY_BEDTIME_END), 7 * 60)
         set(value) = prefs.edit().putInt(pk(KEY_BEDTIME_END), value).apply()
 
+    // ---------- Filtrado web (por perfil) ----------
+
+    /** Muestra el navegador infantil filtrado en el launcher. */
+    var browserEnabled: Boolean
+        get() = prefs.getBoolean(pk(KEY_BROWSER_ENABLED), false)
+        set(value) = prefs.edit().putBoolean(pk(KEY_BROWSER_ENABLED), value).apply()
+
+    /** true = solo dominios permitidos; false = todo salvo los bloqueados. */
+    var webWhitelistMode: Boolean
+        get() = prefs.getBoolean(pk(KEY_WEB_WHITELIST_MODE), false)
+        set(value) = prefs.edit().putBoolean(pk(KEY_WEB_WHITELIST_MODE), value).apply()
+
+    var blockedDomains: Set<String>
+        get() = prefs.getStringSet(pk(KEY_BLOCKED_DOMAINS), emptySet())?.toSet() ?: emptySet()
+        set(value) = prefs.edit().putStringSet(pk(KEY_BLOCKED_DOMAINS), value.toSet()).apply()
+
+    var allowedDomains: Set<String>
+        get() = prefs.getStringSet(pk(KEY_ALLOWED_DOMAINS), emptySet())?.toSet() ?: emptySet()
+        set(value) = prefs.edit().putStringSet(pk(KEY_ALLOWED_DOMAINS), value.toSet()).apply()
+
     // ---------- Extensión de tiempo (por perfil) ----------
 
     /** Minutos extra concedidos hoy por un adulto (se suman a los límites). */
@@ -382,13 +402,19 @@ class PreferencesManager(context: Context) {
         private const val KEY_USAGE_MAP = "usage_map_json"
         private const val KEY_EXTENSION_DATE = "extension_date"
         private const val KEY_EXTENSION_MINUTES = "extension_minutes"
+        private const val KEY_BROWSER_ENABLED = "browser_enabled"
+        private const val KEY_WEB_WHITELIST_MODE = "web_whitelist_mode"
+        private const val KEY_BLOCKED_DOMAINS = "blocked_domains"
+        private const val KEY_ALLOWED_DOMAINS = "allowed_domains"
 
         /** Claves que existen una vez por perfil. */
         private val PROFILE_SCOPED_KEYS = listOf(
             KEY_ALLOWED_APPS, KEY_DAILY_LIMIT,
             KEY_BEDTIME_ENABLED, KEY_BEDTIME_START, KEY_BEDTIME_END,
             KEY_APP_LIMITS, KEY_CATEGORY_LIMITS, KEY_USAGE_DATE, KEY_USAGE_MAP,
-            KEY_EXTENSION_DATE, KEY_EXTENSION_MINUTES
+            KEY_EXTENSION_DATE, KEY_EXTENSION_MINUTES,
+            KEY_BROWSER_ENABLED, KEY_WEB_WHITELIST_MODE,
+            KEY_BLOCKED_DOMAINS, KEY_ALLOWED_DOMAINS
         )
 
         @Volatile
