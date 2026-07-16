@@ -55,6 +55,8 @@
     <string name="bedtime_from">Desde</string>
     <string name="bedtime_to">Hasta</string>
     <string name="minutes_fmt">%1$d min</string>
+    <string name="category_limits">Límites por categoría</string>
+    <string name="category_limits_desc">Tiempo máximo diario por tipo de app; se suma el uso de todas las apps de la categoría. Toca una categoría para fijar su límite.</string>
     <string name="per_app_hint">💡 Para poner un límite a una app concreta, entra en «Uso de hoy» y toca la app.</string>
 
     <!-- Uso -->
@@ -86,6 +88,8 @@
     <string name="blocked_daily_msg">Ya usaste todo tu tiempo de pantalla de hoy. ¡Mañana podrás seguir jugando!</string>
     <string name="blocked_app_limit_title">Tiempo agotado para esta app</string>
     <string name="blocked_app_limit_msg">Ya usaste todo el tiempo permitido para esta app hoy.</string>
+    <string name="blocked_category_title">Tiempo agotado para esta categoría</string>
+    <string name="blocked_category_msg">Ya usaste todo el tiempo permitido hoy para este tipo de apps.</string>
     <string name="blocked_bedtime_title">Hora de dormir 🌙</string>
     <string name="blocked_bedtime_msg">Es hora de descansar. Las apps volverán a estar disponibles mañana.</string>
     <string name="btn_go_home">Volver al inicio</string>

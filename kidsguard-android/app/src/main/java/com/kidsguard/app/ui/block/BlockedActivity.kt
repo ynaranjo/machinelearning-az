@@ -47,6 +47,9 @@ class BlockedActivity : AppCompatActivity() {
             BlockReason.APP_LIMIT -> Triple(
                 "⏳", R.string.blocked_app_limit_title, R.string.blocked_app_limit_msg
             )
+            BlockReason.CATEGORY_LIMIT -> Triple(
+                "🗂️", R.string.blocked_category_title, R.string.blocked_category_msg
+            )
             BlockReason.BEDTIME -> Triple(
                 "🌙", R.string.blocked_bedtime_title, R.string.blocked_bedtime_msg
             )
@@ -58,8 +61,9 @@ class BlockedActivity : AppCompatActivity() {
         binding.btnHome.setOnClickListener { goHome() }
 
         // Solo tiene sentido conceder tiempo extra en bloqueos por límite.
-        val extendable =
-            reason == BlockReason.DAILY_LIMIT || reason == BlockReason.APP_LIMIT
+        val extendable = reason == BlockReason.DAILY_LIMIT ||
+            reason == BlockReason.APP_LIMIT ||
+            reason == BlockReason.CATEGORY_LIMIT
         binding.btnMoreTime.visibility = if (extendable) View.VISIBLE else View.GONE
         binding.btnMoreTime.setOnClickListener { showExtensionDialog() }
 

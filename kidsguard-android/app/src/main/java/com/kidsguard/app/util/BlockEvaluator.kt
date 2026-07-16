@@ -71,6 +71,18 @@ object BlockEvaluator {
         ) {
             return BlockReason.APP_LIMIT
         }
+
+        // Límite por categoría: suma el uso de todas las apps del mismo tipo.
+        val category = AppCategories.of(context, packageName)
+        val categoryLimit = prefs.categoryLimitFor(category)
+        if (categoryLimit != null) {
+            val categoryUsage = prefs.usageMapToday().entries.sumOf { (pkg, seconds) ->
+                if (AppCategories.of(context, pkg) == category) seconds else 0
+            }
+            if (categoryUsage >= (categoryLimit + extraMinutes) * 60) {
+                return BlockReason.CATEGORY_LIMIT
+            }
+        }
         return null
     }
 

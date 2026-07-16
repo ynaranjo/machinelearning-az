@@ -29,6 +29,7 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 | 📈 Informe semanal *(v1.2)* | Historial de 30 días en base de datos local (Room): barras por día y top de apps de la semana, por perfil. |
 | 🗂️ Categorías *(v1.2)* | La selección de apps se agrupa por categoría del sistema (juegos, vídeo, social…) para configurar más rápido. |
 | ➕ Tiempo extra *(v1.4)* | Desde la pantalla de bloqueo, el adulto concede 15/30/60 min extra con su PIN, sin desactivar el modo niños. |
+| 🗂️ Límites por categoría *(v1.5)* | Tiempo máximo diario por tipo de app (juegos, vídeo, social…), sumando el uso de todas las apps de la categoría. |
 | 👋 Asistente inicial *(v1.4)* | Pantalla de bienvenida que guía la configuración en 3 pasos: PIN → permisos → apps permitidas. |
 
 ## Estructura del proyecto
@@ -215,9 +216,10 @@ siguiente:
 - [ ] **Geolocalización y geovallas** (zona segura / alerta de salida).
 - [ ] **Modo "Escuela"** — perfil temporal más restrictivo activable por
   horario o con un toque, sin tocar la configuración normal.
-- [x] **Categorías de apps** ✅ *(v1.2, parcial)*: la selección de apps se
-  agrupa por la categoría declarada por cada app (juegos, vídeo, social…).
-  *(Pendiente: límites de tiempo por categoría.)*
+- [x] **Categorías de apps** ✅ *(v1.2–v1.5)*: la selección de apps se
+  agrupa por la categoría declarada por cada app y, desde v1.5, se puede
+  fijar un **límite diario por categoría** (suma el uso de todas las apps
+  del mismo tipo), ampliable con la extensión de tiempo del adulto.
 - [x] **Extensión de tiempo bajo petición** ✅ *(v1.4, local)*: desde la
   pantalla de bloqueo por límite, un adulto introduce su PIN y concede
   15/30/60 min extra que amplían los límites del día sin salir del modo
@@ -286,7 +288,8 @@ siguiente:
   producción) con `fastlane` o el `google-github-actions/upload-google-play`.
 - [ ] Versionado semántico automático y *changelog* por release.
 - [ ] Reporte de cobertura de tests y *quality gate* en el pipeline.
-- [ ] Escaneo de seguridad de dependencias (Dependabot / Snyk).
+- [x] Escaneo de dependencias con Dependabot ✅ *(v1.5)*: actualizaciones
+  semanales de Gradle y GitHub Actions (`.github/dependabot.yml`).
 
 ### 7. Cumplimiento legal y políticas de Google Play
 

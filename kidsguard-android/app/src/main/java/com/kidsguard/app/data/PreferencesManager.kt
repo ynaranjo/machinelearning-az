@@ -278,6 +278,31 @@ class PreferencesManager(context: Context) {
         prefs.edit().putString(pk(KEY_APP_LIMITS), json.toString()).apply()
     }
 
+    // ---------- Límites por categoría (por perfil) ----------
+
+    /** Mapa categoría del sistema (ApplicationInfo.category) -> minutos/día. */
+    fun categoryLimits(): Map<Int, Int> {
+        val json = JSONObject(prefs.getString(pk(KEY_CATEGORY_LIMITS), "{}") ?: "{}")
+        val map = mutableMapOf<Int, Int>()
+        json.keys().forEach { key ->
+            key.toIntOrNull()?.let { map[it] = json.getInt(key) }
+        }
+        return map
+    }
+
+    fun categoryLimitFor(category: Int): Int? = categoryLimits()[category]
+
+    /** minutes null o <= 0 elimina el límite. */
+    fun setCategoryLimit(category: Int, minutes: Int?) {
+        val json = JSONObject(prefs.getString(pk(KEY_CATEGORY_LIMITS), "{}") ?: "{}")
+        if (minutes == null || minutes <= 0) {
+            json.remove(category.toString())
+        } else {
+            json.put(category.toString(), minutes)
+        }
+        prefs.edit().putString(pk(KEY_CATEGORY_LIMITS), json.toString()).apply()
+    }
+
     // ---------- Uso diario (por perfil) ----------
 
     private fun today(): String =
@@ -352,6 +377,7 @@ class PreferencesManager(context: Context) {
         private const val KEY_BEDTIME_START = "bedtime_start_minutes"
         private const val KEY_BEDTIME_END = "bedtime_end_minutes"
         private const val KEY_APP_LIMITS = "app_limits_json"
+        private const val KEY_CATEGORY_LIMITS = "category_limits_json"
         private const val KEY_USAGE_DATE = "usage_date"
         private const val KEY_USAGE_MAP = "usage_map_json"
         private const val KEY_EXTENSION_DATE = "extension_date"
@@ -361,7 +387,7 @@ class PreferencesManager(context: Context) {
         private val PROFILE_SCOPED_KEYS = listOf(
             KEY_ALLOWED_APPS, KEY_DAILY_LIMIT,
             KEY_BEDTIME_ENABLED, KEY_BEDTIME_START, KEY_BEDTIME_END,
-            KEY_APP_LIMITS, KEY_USAGE_DATE, KEY_USAGE_MAP,
+            KEY_APP_LIMITS, KEY_CATEGORY_LIMITS, KEY_USAGE_DATE, KEY_USAGE_MAP,
             KEY_EXTENSION_DATE, KEY_EXTENSION_MINUTES
         )
 

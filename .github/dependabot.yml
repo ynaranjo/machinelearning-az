@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Dependencias de Gradle de KidsGuard
+  - package-ecosystem: gradle
+    directory: /kidsguard-android
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  # Actions usadas en los workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
