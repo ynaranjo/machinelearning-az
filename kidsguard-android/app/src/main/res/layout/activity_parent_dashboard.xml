@@ -149,6 +149,15 @@
             android:textAlignment="textStart" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCloud"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/btn_cloud"
+            android:textAlignment="textStart" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSetup"
             style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"

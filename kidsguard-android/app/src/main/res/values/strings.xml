@@ -34,6 +34,7 @@
     <string name="btn_apps">📱  Apps permitidas</string>
     <string name="btn_limits">⏱  Límites de tiempo</string>
     <string name="btn_web_filter">🌐  Navegador y filtrado web</string>
+    <string name="btn_cloud">☁️  Control remoto (nube)</string>
     <string name="btn_usage">📊  Uso de hoy</string>
     <string name="btn_setup">🔐  Permisos del sistema</string>
     <string name="btn_change_pin">🔑  Cambiar PIN</string>
@@ -154,6 +155,26 @@
     <string name="web_blacklist_hint">Estos dominios (y sus subdominios) quedarán bloqueados.</string>
     <string name="web_add_domain">Añadir dominio</string>
     <string name="web_domain_hint">ejemplo.com</string>
+
+    <!-- Control remoto en la nube -->
+    <string name="cloud_title">Control remoto (nube)</string>
+    <string name="cloud_intro">Opcional y desactivado por defecto. Empareja este dispositivo con tu propio servidor KidsGuard para ver el uso y controlarlo a distancia desde el panel web. Si no lo activas, la app funciona 100 % en local sin enviar nada.</string>
+    <string name="cloud_enable">Activar sincronización en la nube</string>
+    <string name="cloud_url_hint">URL del servidor (https://…)</string>
+    <string name="cloud_family_code_hint">Código de familia</string>
+    <string name="cloud_pair">Emparejar dispositivo</string>
+    <string name="cloud_unpair">Desvincular este dispositivo</string>
+    <string name="cloud_sync_now">Sincronizar ahora</string>
+    <string name="cloud_status_paired">✅ Dispositivo emparejado</string>
+    <string name="cloud_status_unpaired">Sin emparejar</string>
+    <string name="cloud_last_sync">Última sincronización: %1$s</string>
+    <string name="cloud_never_synced">Aún no se ha sincronizado</string>
+    <string name="cloud_paired">¡Dispositivo emparejado!</string>
+    <string name="cloud_unpaired">Dispositivo desvinculado</string>
+    <string name="cloud_pair_error">No se pudo emparejar: %1$s</string>
+    <string name="cloud_need_url_code">Escribe la URL del servidor y el código de familia</string>
+    <string name="cloud_sync_ok">Sincronizado correctamente</string>
+    <string name="cloud_sync_error">No se pudo sincronizar</string>
 
     <!-- Perfiles -->
     <string name="btn_profiles">👧  Perfiles de hijos</string>

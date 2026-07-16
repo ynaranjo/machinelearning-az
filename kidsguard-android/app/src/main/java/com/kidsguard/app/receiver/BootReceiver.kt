@@ -6,6 +6,7 @@ import android.content.Intent
 import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.service.AppMonitorService
 import com.kidsguard.app.service.ServiceWatchdogWorker
+import com.kidsguard.app.service.SyncWorker
 
 /**
  * Reinicia la protección al encender el dispositivo o tras actualizar la app.
@@ -25,6 +26,9 @@ class BootReceiver : BroadcastReceiver() {
         if (prefs.childModeActive) {
             AppMonitorService.start(context)
             ServiceWatchdogWorker.schedule(context)
+        }
+        if (prefs.cloudEnabled && prefs.isPaired) {
+            SyncWorker.schedule(context)
         }
     }
 }

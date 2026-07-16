@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KidsGuard — Panel del adulto</title>
+  <style>
+    :root { --primary: #4F6DF5; --bg: #F0F4FF; --text: #1A1B2E; --muted: #5A5D72; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    header { background: var(--primary); color: #fff; padding: 16px 20px; }
+    header h1 { margin: 0; font-size: 20px; }
+    main { max-width: 900px; margin: 0 auto; padding: 20px; }
+    .login, .card { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    input, select, button { font-size: 15px; padding: 10px 12px; border-radius: 8px;
+      border: 1px solid #ccd; }
+    button { background: var(--primary); color: #fff; border: none; cursor: pointer; }
+    button.secondary { background: #eef; color: var(--primary); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .device h2 { margin: 0 0 4px; font-size: 18px; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .bar { height: 10px; background: #e6eaff; border-radius: 6px; overflow: hidden; margin-top: 6px; }
+    .bar > span { display: block; height: 100%; background: var(--primary); }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+    td { padding: 4px 0; border-bottom: 1px solid #eef; }
+    .actions { margin-top: 12px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header><h1>🛡️ KidsGuard — Panel del adulto</h1></header>
+  <main>
+    <div class="login card" id="login">
+      <p>Introduce la contraseña de administración para ver los dispositivos.</p>
+      <div class="row">
+        <input type="password" id="pass" placeholder="Contraseña" />
+        <button onclick="login()">Entrar</button>
+      </div>
+      <p class="muted" id="loginError"></p>
+    </div>
+
+    <div id="dashboard" class="hidden">
+      <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
+        <span class="muted">Actualiza cada 30 s</span>
+        <button class="secondary" onclick="refresh()">Actualizar ahora</button>
+      </div>
+      <div id="devices"></div>
+    </div>
+  </main>
+
+  <script>
+    let pass = '';
+
+    function fmtDuration(sec) {
+      const m = Math.floor((sec || 0) / 60);
+      const h = Math.floor(m / 60);
+      return h > 0 ? `${h}h ${String(m % 60).padStart(2, '0')}m` : `${m}m`;
+    }
+
+    async function login() {
+      pass = document.getElementById('pass').value;
+      const res = await fetch('/admin/devices?pass=' + encodeURIComponent(pass));
+      if (!res.ok) {
+        document.getElementById('loginError').textContent = 'Contraseña incorrecta';
+        return;
+      }
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      refresh();
+      setInterval(refresh, 30000);
+    }
+
+    async function refresh() {
+      const res = await fetch('/admin/devices?pass=' + encodeURIComponent(pass));
+      if (!res.ok) return;
+      const { devices } = await res.json();
+      document.getElementById('devices').innerHTML = devices.map(renderDevice).join('') ||
+        '<div class="card">No hay dispositivos emparejados todavía.</div>';
+    }
+
+    function renderDevice(d) {
+      const s = d.snapshot || {};
+      const profile = s.activeProfile || {};
+      const total = s.totalUsageSecondsToday || 0;
+      const limit = (s.dailyLimitMinutes ?? -1);
+      const extra = s.extraMinutesToday || 0;
+      const pct = limit >= 0 ? Math.min(100, Math.round(total / ((limit + extra) * 60) * 100)) : 0;
+      const usage = s.usageToday || {};
+      const rows = Object.entries(usage)
+        .sort((a, b) => b[1] - a[1]).slice(0, 8)
+        .map(([pkg, sec]) => `<tr><td>${pkg}</td><td style="text-align:right">${fmtDuration(sec)}</td></tr>`)
+        .join('');
+      const lastSeen = d.lastSeen ? new Date(d.lastSeen).toLocaleString() : '—';
+      return `
+        <div class="card device">
+          <h2>${profile.emoji || '📱'} ${d.name}</h2>
+          <div class="muted">Perfil: ${profile.name || '—'} · Modo niños:
+            ${s.childModeActive ? '🟢 activo' : '⚪ inactivo'} · Visto: ${lastSeen}</div>
+          <div style="margin-top:10px">
+            <strong>Uso de hoy: ${fmtDuration(total)}</strong>
+            ${limit >= 0 ? `/ ${limit + extra} min` : '(sin límite)'}
+            <div class="bar"><span style="width:${pct}%"></span></div>
+          </div>
+          <table>${rows || '<tr><td class="muted">Sin uso registrado hoy</td></tr>'}</table>
+          <div class="actions row">
+            <select id="min-${d.id}">
+              <option value="15">15 min</option>
+              <option value="30">30 min</option>
+              <option value="60">60 min</option>
+            </select>
+            <button onclick="grant('${d.id}')">➕ Conceder tiempo</button>
+            <button class="secondary" onclick="setMode('${d.id}', true)">Activar modo niños</button>
+            <button class="secondary" onclick="setMode('${d.id}', false)">Desactivar</button>
+          </div>
+        </div>`;
+    }
+
+    async function sendCommand(id, type, payload) {
+      await fetch('/admin/devices/' + id + '/commands?pass=' + encodeURIComponent(pass), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, payload }),
+      });
+      alert('Comando enviado. Se aplicará en la próxima sincronización del dispositivo.');
+    }
+
+    function grant(id) {
+      const min = parseInt(document.getElementById('min-' + id).value, 10);
+      sendCommand(id, 'grant_extra_minutes', { minutes: min });
+    }
+    function setMode(id, active) {
+      sendCommand(id, 'set_child_mode', { active });
+    }
+  </script>
+</body>
+</html>

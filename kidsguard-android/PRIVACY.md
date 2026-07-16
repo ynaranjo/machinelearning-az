@@ -5,9 +5,16 @@ Google Play debe alojarse en una URL pública y revisarse legalmente._
 
 ## Resumen
 
-KidsGuard es una app de control parental que funciona **100 % en el
-dispositivo**. No tiene servidores, no crea cuentas y **no envía ningún dato
-fuera del dispositivo**.
+KidsGuard es una app de control parental que funciona **de forma
+predeterminada 100 % en el dispositivo**: no crea cuentas y no envía ningún
+dato fuera del dispositivo.
+
+De forma **opcional y desactivada por defecto**, el adulto puede activar la
+sincronización en la nube (menú «Control remoto») para vincular el
+dispositivo con **su propio servidor** KidsGuard y monitorizarlo/controlarlo
+a distancia. Solo en ese caso, y solo si el adulto lo activa expresamente, la
+app envía datos —siempre al servidor que el propio adulto configure, nunca a
+Anthropic ni a terceros.
 
 ## Datos que la app trata (solo localmente)
 
@@ -26,7 +33,23 @@ fuera del dispositivo**.
   solo recibe el nombre del paquete que pasa a primer plano.
 - No hay analítica, publicidad, ubicación ni acceso a contactos, fotos,
   micrófono o cámara.
-- Nada se transmite por internet: la app no solicita el permiso de red.
+- Con la sincronización en la nube **desactivada** (estado por defecto), nada
+  se transmite por internet salvo la navegación que el propio niño haga en el
+  navegador infantil.
+
+## Sincronización en la nube (opcional, desactivada por defecto)
+
+Si el adulto la activa y empareja el dispositivo con su servidor:
+
+| Dato enviado | Para qué | A dónde |
+|---|---|---|
+| Perfil activo, apps permitidas, límites y uso del día | Que el adulto monitorice y controle a distancia | Únicamente al servidor que el adulto configura |
+
+- El servidor es **autoalojado por el adulto** (código abierto incluido en
+  `kidsguard-backend/`); KidsGuard no opera ningún servidor central.
+- No se envía el contenido de pantalla ni datos de navegación.
+- Al desvincular el dispositivo, deja de enviarse cualquier dato.
+- Recomendación: usar siempre HTTPS para la conexión con el servidor.
 
 ## Permisos especiales y su justificación
 

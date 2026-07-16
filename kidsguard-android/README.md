@@ -32,6 +32,7 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 | 🗂️ Límites por categoría *(v1.5)* | Tiempo máximo diario por tipo de app (juegos, vídeo, social…), sumando el uso de todas las apps de la categoría. |
 | 🔐 Modo kiosco *(v1.6)* | Con *device owner* (ADB): LockTask sobre las apps permitidas, launcher fijado por política, barra de estado desactivada y modo seguro/factory reset bloqueados. |
 | 🌐 Filtrado web *(v1.7)* | Navegador infantil con lista negra/blanca de dominios por perfil, SafeSearch forzado y YouTube restringido. |
+| ☁️ Control remoto *(v1.8)* | Opcional: empareja con un backend autoalojado (incluido) para ver el uso y enviar comandos (más tiempo, modo niños, límites) desde un panel web. |
 | 👋 Asistente inicial *(v1.4)* | Pantalla de bienvenida que guía la configuración en 3 pasos: PIN → permisos → apps permitidas. |
 
 ## Estructura del proyecto
@@ -332,12 +333,17 @@ siguiente:
 
 ### 8. Backend y sincronización (para ser realmente competitivo)
 
-- [ ] Cuenta familiar en la nube (Firebase Auth o similar) para vincular
-  el dispositivo del hijo con el del adulto.
-- [ ] Sincronización de configuración/reportes vía Firestore o backend
-  propio, con notificaciones push (FCM) en tiempo real al adulto.
-- [ ] Panel web complementario para gestionar todo sin depender del móvil
-  del niño.
+- [x] Vinculación dispositivo-adulto ✅ *(v1.8)*: emparejamiento por código
+  de familia contra un backend autoalojado; credenciales por dispositivo.
+- [x] Sincronización de configuración/reportes y **control remoto** ✅
+  *(v1.8)*: el dispositivo envía snapshots (perfil, config, uso) y aplica
+  comandos remotos (conceder tiempo, activar/desactivar modo niños, cambiar
+  apps/límite) vía `SyncWorker` (WorkManager, cada 15 min). *(Pendiente:
+  notificaciones push FCM en tiempo real en vez de sondeo.)*
+- [x] **Panel web** complementario ✅ *(v1.8)*: incluido en
+  [`kidsguard-backend/`](../kidsguard-backend/) — Node/Express autoalojable
+  con panel del adulto para ver uso y enviar comandos, sin depender del
+  móvil del niño. *(Pendiente: cuentas multi-familia y base de datos.)*
 
 ### Priorización sugerida
 

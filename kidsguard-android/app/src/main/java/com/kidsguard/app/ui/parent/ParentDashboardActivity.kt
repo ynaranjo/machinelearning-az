@@ -58,6 +58,9 @@ class ParentDashboardActivity : AppCompatActivity() {
         binding.btnProfiles.setOnClickListener {
             startActivity(Intent(this, ProfilesActivity::class.java))
         }
+        binding.btnCloud.setOnClickListener {
+            startActivity(Intent(this, CloudSyncActivity::class.java))
+        }
         binding.btnSetup.setOnClickListener {
             startActivity(Intent(this, SetupActivity::class.java))
         }

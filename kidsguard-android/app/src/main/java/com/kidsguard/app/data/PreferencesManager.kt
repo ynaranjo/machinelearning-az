@@ -88,6 +88,42 @@ class PreferencesManager(context: Context) {
         get() = prefs.getBoolean(KEY_CHILD_MODE, false)
         set(value) = prefs.edit().putBoolean(KEY_CHILD_MODE, value).apply()
 
+    // ---------- Sincronización en la nube (global, opt-in) ----------
+
+    var cloudEnabled: Boolean
+        get() = prefs.getBoolean(KEY_CLOUD_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_CLOUD_ENABLED, value).apply()
+
+    /** URL base del backend del adulto (p. ej. https://mi-servidor.com). */
+    var cloudBackendUrl: String
+        get() = prefs.getString(KEY_CLOUD_URL, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_CLOUD_URL, value.trim().trimEnd('/')).apply()
+
+    /** Identificador de este dispositivo tras el emparejamiento. */
+    var cloudDeviceId: String?
+        get() = prefs.getString(KEY_CLOUD_DEVICE_ID, null)
+        set(value) = prefs.edit().putString(KEY_CLOUD_DEVICE_ID, value).apply()
+
+    /** Token de autenticación de este dispositivo. */
+    var cloudToken: String?
+        get() = prefs.getString(KEY_CLOUD_TOKEN, null)
+        set(value) = prefs.edit().putString(KEY_CLOUD_TOKEN, value).apply()
+
+    var cloudLastSync: Long
+        get() = prefs.getLong(KEY_CLOUD_LAST_SYNC, 0L)
+        set(value) = prefs.edit().putLong(KEY_CLOUD_LAST_SYNC, value).apply()
+
+    val isPaired: Boolean
+        get() = !cloudDeviceId.isNullOrEmpty() && !cloudToken.isNullOrEmpty()
+
+    fun clearPairing() {
+        prefs.edit()
+            .remove(KEY_CLOUD_DEVICE_ID)
+            .remove(KEY_CLOUD_TOKEN)
+            .remove(KEY_CLOUD_LAST_SYNC)
+            .apply()
+    }
+
     // ---------- Perfiles de hijos ----------
 
     var activeProfileId: Int
@@ -389,6 +425,11 @@ class PreferencesManager(context: Context) {
         private const val KEY_SEC_ANSWER_SALT = "sec_answer_salt"
         private const val KEY_BIOMETRIC = "biometric_enabled"
         private const val KEY_CHILD_MODE = "child_mode_active"
+        private const val KEY_CLOUD_ENABLED = "cloud_enabled"
+        private const val KEY_CLOUD_URL = "cloud_url"
+        private const val KEY_CLOUD_DEVICE_ID = "cloud_device_id"
+        private const val KEY_CLOUD_TOKEN = "cloud_token"
+        private const val KEY_CLOUD_LAST_SYNC = "cloud_last_sync"
         private const val KEY_PROFILES = "profiles_json"
         private const val KEY_ACTIVE_PROFILE = "active_profile_id"
         private const val KEY_ALLOWED_APPS = "allowed_apps"
