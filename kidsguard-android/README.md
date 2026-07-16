@@ -28,6 +28,8 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 | 👧 Perfiles múltiples *(v1.2)* | Varios hijos en el mismo dispositivo, cada uno con sus apps permitidas, límites, horarios y uso. |
 | 📈 Informe semanal *(v1.2)* | Historial de 30 días en base de datos local (Room): barras por día y top de apps de la semana, por perfil. |
 | 🗂️ Categorías *(v1.2)* | La selección de apps se agrupa por categoría del sistema (juegos, vídeo, social…) para configurar más rápido. |
+| ➕ Tiempo extra *(v1.4)* | Desde la pantalla de bloqueo, el adulto concede 15/30/60 min extra con su PIN, sin desactivar el modo niños. |
+| 👋 Asistente inicial *(v1.4)* | Pantalla de bienvenida que guía la configuración en 3 pasos: PIN → permisos → apps permitidas. |
 
 ## Estructura del proyecto
 
@@ -216,8 +218,10 @@ siguiente:
 - [x] **Categorías de apps** ✅ *(v1.2, parcial)*: la selección de apps se
   agrupa por la categoría declarada por cada app (juegos, vídeo, social…).
   *(Pendiente: límites de tiempo por categoría.)*
-- [ ] **Extensión de tiempo bajo petición**: el niño solicita más tiempo
-  desde la pantalla de bloqueo y el adulto lo aprueba remotamente.
+- [x] **Extensión de tiempo bajo petición** ✅ *(v1.4, local)*: desde la
+  pantalla de bloqueo por límite, un adulto introduce su PIN y concede
+  15/30/60 min extra que amplían los límites del día sin salir del modo
+  niños. *(Pendiente: aprobación remota, requiere backend.)*
 
 ### 3. Seguridad y recuperación
 
@@ -247,16 +251,17 @@ siguiente:
   hilo principal al leer preferencias.
 - [ ] Modularización (`:core`, `:data`, `:feature-launcher`,
   `:feature-parent`) si el proyecto crece.
-- [ ] Tests: unitarios (`PreferencesManager`, `TimeRules`, evaluación de
-  bloqueo), instrumentados (`AppMonitorService`) y de UI (Espresso) — hoy no
-  hay ningún test.
+- [x] Tests ✅ *(v1.4, parcial)*: tests unitarios de `TimeRules` (horario de
+  dormir con cruce de medianoche, formato de duraciones) ejecutados en cada
+  build de CI. *(Pendiente: `PreferencesManager`/`BlockEvaluator` con
+  Robolectric, instrumentados y Espresso.)*
 - [ ] Linting automático (`ktlint`/`detekt`) integrado en CI.
 - [ ] `isMinifyEnabled` + reglas ProGuard reales para el build de release.
 
 ### 5. UX / UI
 
-- [ ] Asistente de configuración inicial (*onboarding wizard*) que guíe
-  paso a paso en vez de pantallas sueltas.
+- [x] Asistente de configuración inicial ✅ *(v1.4)*: pantalla de bienvenida
+  que explica la app y los 3 pasos, encadenada con PIN → permisos → panel.
 - [x] Tema oscuro completo y cuadrícula adaptativa ✅ *(v1.3)*: paleta
   `values-night` para todas las pantallas y columnas del launcher según el
   ancho de pantalla (3–8, tablets incluidas). *(Pendiente: layouts

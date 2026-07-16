@@ -5,11 +5,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.ui.pin.PinActivity
-import com.kidsguard.app.ui.pin.PinSetupActivity
 
 /**
  * Punto de entrada del adulto (icono de la app).
- * Primera vez: crear PIN. Después: pedir PIN para entrar al panel.
+ * Primera vez: asistente de bienvenida. Después: pedir PIN para el panel.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -19,8 +18,7 @@ class MainActivity : AppCompatActivity() {
         val next = if (prefs.isPinSet) {
             Intent(this, PinActivity::class.java)
         } else {
-            Intent(this, PinSetupActivity::class.java)
-                .putExtra(PinSetupActivity.EXTRA_FIRST_RUN, true)
+            Intent(this, WelcomeActivity::class.java)
         }
         startActivity(next)
         finish()

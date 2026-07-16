@@ -45,6 +45,10 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Run unit tests
+        working-directory: kidsguard-android
+        run: gradle testDebugUnitTest --stacktrace
+
       - name: Build Debug APK
         working-directory: kidsguard-android
         run: gradle assembleDebug --stacktrace

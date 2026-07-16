@@ -40,4 +40,14 @@
         android:backgroundTint="@color/on_primary"
         android:text="@string/btn_go_home"
         android:textColor="@color/primary" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnMoreTime"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/btn_more_time"
+        android:textColor="@color/on_primary"
+        android:visibility="gone" />
 </LinearLayout>

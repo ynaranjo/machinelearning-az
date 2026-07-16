@@ -54,6 +54,7 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.WelcomeActivity" android:exported="false" />
         <activity android:name=".ui.pin.PinSetupActivity" android:exported="false" />
         <activity
             android:name=".ui.pin.PinActivity"

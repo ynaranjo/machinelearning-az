@@ -55,13 +55,20 @@ object BlockEvaluator {
             return BlockReason.BEDTIME
         }
 
+        // Los minutos extra concedidos hoy por un adulto amplían ambos límites.
+        val extraMinutes = prefs.extraMinutesToday
+
         val dailyLimit = prefs.dailyLimitMinutes
-        if (dailyLimit >= 0 && prefs.totalUsageSecondsToday() >= dailyLimit * 60) {
+        if (dailyLimit >= 0 &&
+            prefs.totalUsageSecondsToday() >= (dailyLimit + extraMinutes) * 60
+        ) {
             return BlockReason.DAILY_LIMIT
         }
 
         val appLimit = prefs.appLimitFor(packageName)
-        if (appLimit != null && prefs.usageSecondsFor(packageName) >= appLimit * 60) {
+        if (appLimit != null &&
+            prefs.usageSecondsFor(packageName) >= (appLimit + extraMinutes) * 60
+        ) {
             return BlockReason.APP_LIMIT
         }
         return null

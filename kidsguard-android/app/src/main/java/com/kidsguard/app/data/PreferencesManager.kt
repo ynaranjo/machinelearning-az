@@ -238,6 +238,23 @@ class PreferencesManager(context: Context) {
         get() = prefs.getInt(pk(KEY_BEDTIME_END), 7 * 60)
         set(value) = prefs.edit().putInt(pk(KEY_BEDTIME_END), value).apply()
 
+    // ---------- Extensión de tiempo (por perfil) ----------
+
+    /** Minutos extra concedidos hoy por un adulto (se suman a los límites). */
+    val extraMinutesToday: Int
+        get() = if (prefs.getString(pk(KEY_EXTENSION_DATE), null) == today()) {
+            prefs.getInt(pk(KEY_EXTENSION_MINUTES), 0)
+        } else {
+            0
+        }
+
+    fun addExtraMinutesToday(minutes: Int) {
+        prefs.edit()
+            .putString(pk(KEY_EXTENSION_DATE), today())
+            .putInt(pk(KEY_EXTENSION_MINUTES), extraMinutesToday + minutes)
+            .apply()
+    }
+
     // ---------- Límites por app (por perfil) ----------
 
     /** Mapa paquete -> minutos por día. */
@@ -337,12 +354,15 @@ class PreferencesManager(context: Context) {
         private const val KEY_APP_LIMITS = "app_limits_json"
         private const val KEY_USAGE_DATE = "usage_date"
         private const val KEY_USAGE_MAP = "usage_map_json"
+        private const val KEY_EXTENSION_DATE = "extension_date"
+        private const val KEY_EXTENSION_MINUTES = "extension_minutes"
 
         /** Claves que existen una vez por perfil. */
         private val PROFILE_SCOPED_KEYS = listOf(
             KEY_ALLOWED_APPS, KEY_DAILY_LIMIT,
             KEY_BEDTIME_ENABLED, KEY_BEDTIME_START, KEY_BEDTIME_END,
-            KEY_APP_LIMITS, KEY_USAGE_DATE, KEY_USAGE_MAP
+            KEY_APP_LIMITS, KEY_USAGE_DATE, KEY_USAGE_MAP,
+            KEY_EXTENSION_DATE, KEY_EXTENSION_MINUTES
         )
 
         @Volatile

@@ -79,7 +79,8 @@ class KidsHomeActivity : AppCompatActivity() {
 
         val dailyLimit = prefs.dailyLimitMinutes
         if (dailyLimit >= 0) {
-            val remaining = (dailyLimit * 60 - prefs.totalUsageSecondsToday()).coerceAtLeast(0)
+            val allowedSeconds = (dailyLimit + prefs.extraMinutesToday) * 60
+            val remaining = (allowedSeconds - prefs.totalUsageSecondsToday()).coerceAtLeast(0)
             binding.tvTimeLeft.text =
                 getString(R.string.time_left_fmt, TimeRules.formatDuration(remaining))
             binding.tvTimeLeft.visibility = View.VISIBLE

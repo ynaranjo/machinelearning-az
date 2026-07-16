@@ -89,6 +89,14 @@
     <string name="blocked_bedtime_title">Bedtime 🌙</string>
     <string name="blocked_bedtime_msg">Time to rest. Apps will be available again tomorrow.</string>
     <string name="btn_go_home">Back to home</string>
+    <string name="btn_more_time">🔑 More time (adults only)</string>
+    <string name="extension_title">Grant extra time</string>
+    <string name="extension_granted">Extra time granted: %1$d min</string>
+
+    <!-- Welcome -->
+    <string name="welcome_title">Welcome to KidsGuard!</string>
+    <string name="welcome_text">Turn this device into a safe environment for your kids:\n\n📱 They can only use the apps you allow\n⏱ With daily time limits and bedtime\n📊 And you can see how long they use each app\n\nSetup takes 3 steps:\n\n1️⃣ Create your adult PIN\n2️⃣ Grant the system permissions\n3️⃣ Choose the allowed apps and enable kids mode</string>
+    <string name="welcome_start">Get started</string>
 
     <!-- Service -->
     <string name="notif_channel_name">KidsGuard protection</string>
