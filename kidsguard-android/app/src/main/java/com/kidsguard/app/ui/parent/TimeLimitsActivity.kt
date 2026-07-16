@@ -6,10 +6,10 @@ import android.text.InputType
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.SeekBar
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.kidsguard.app.R
-import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.databinding.ActivityTimeLimitsBinding
 import com.kidsguard.app.databinding.ItemCategoryLimitBinding
 import com.kidsguard.app.util.AppCategories
@@ -17,18 +17,17 @@ import com.kidsguard.app.util.TimeRules
 
 /**
  * Configura el límite diario de uso, el horario de dormir y los
- * límites por categoría de apps.
+ * límites por categoría de apps. El estado vive en TimeLimitsViewModel (MVVM).
  */
 class TimeLimitsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTimeLimitsBinding
-    private lateinit var prefs: PreferencesManager
+    private val viewModel: TimeLimitsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTimeLimitsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        prefs = PreferencesManager(this)
 
         setupDailyLimit()
         setupBedtime()
@@ -37,7 +36,7 @@ class TimeLimitsActivity : AppCompatActivity() {
 
     private fun setupCategoryLimits() {
         binding.llCategories.removeAllViews()
-        val limits = prefs.categoryLimits()
+        val limits = viewModel.categoryLimits()
         AppCategories.ALL.forEach { category ->
             val row = ItemCategoryLimitBinding.inflate(
                 layoutInflater, binding.llCategories, false
@@ -55,7 +54,7 @@ class TimeLimitsActivity : AppCompatActivity() {
         val input = EditText(this).apply {
             inputType = InputType.TYPE_CLASS_NUMBER
             hint = getString(R.string.set_limit_hint)
-            prefs.categoryLimitFor(category)?.let { setText(it.toString()) }
+            viewModel.categoryLimitFor(category)?.let { setText(it.toString()) }
         }
         val container = FrameLayout(this).apply {
             val pad = (20 * resources.displayMetrics.density).toInt()
@@ -66,7 +65,7 @@ class TimeLimitsActivity : AppCompatActivity() {
             .setTitle(getString(R.string.set_limit_title, AppCategories.label(this, category)))
             .setView(container)
             .setPositiveButton(R.string.save) { _, _ ->
-                prefs.setCategoryLimit(category, input.text.toString().toIntOrNull())
+                viewModel.setCategoryLimit(category, input.text.toString().toIntOrNull())
                 setupCategoryLimits()
             }
             .setNegativeButton(R.string.cancel, null)
@@ -74,13 +73,13 @@ class TimeLimitsActivity : AppCompatActivity() {
     }
 
     private fun setupDailyLimit() {
-        val limit = prefs.dailyLimitMinutes
+        val limit = viewModel.dailyLimitMinutes
         binding.swDaily.isChecked = limit >= 0
         binding.sbDaily.progress = if (limit >= 0) limit else DEFAULT_DAILY_MINUTES
         updateDailyLabel()
 
         binding.swDaily.setOnCheckedChangeListener { _, checked ->
-            prefs.dailyLimitMinutes = if (checked) {
+            viewModel.dailyLimitMinutes = if (checked) {
                 binding.sbDaily.progress.coerceAtLeast(MIN_DAILY_MINUTES)
             } else {
                 -1
@@ -101,7 +100,7 @@ class TimeLimitsActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 if (binding.swDaily.isChecked) {
-                    prefs.dailyLimitMinutes = seekBar.progress.coerceAtLeast(MIN_DAILY_MINUTES)
+                    viewModel.dailyLimitMinutes = seekBar.progress.coerceAtLeast(MIN_DAILY_MINUTES)
                 }
             }
         })
@@ -112,22 +111,22 @@ class TimeLimitsActivity : AppCompatActivity() {
     }
 
     private fun setupBedtime() {
-        binding.swBedtime.isChecked = prefs.bedtimeEnabled
+        binding.swBedtime.isChecked = viewModel.bedtimeEnabled
         updateBedtimeButtons()
 
         binding.swBedtime.setOnCheckedChangeListener { _, checked ->
-            prefs.bedtimeEnabled = checked
+            viewModel.bedtimeEnabled = checked
         }
 
         binding.btnBedStart.setOnClickListener {
-            pickTime(prefs.bedtimeStartMinutes) { minutes ->
-                prefs.bedtimeStartMinutes = minutes
+            pickTime(viewModel.bedtimeStartMinutes) { minutes ->
+                viewModel.bedtimeStartMinutes = minutes
                 updateBedtimeButtons()
             }
         }
         binding.btnBedEnd.setOnClickListener {
-            pickTime(prefs.bedtimeEndMinutes) { minutes ->
-                prefs.bedtimeEndMinutes = minutes
+            pickTime(viewModel.bedtimeEndMinutes) { minutes ->
+                viewModel.bedtimeEndMinutes = minutes
                 updateBedtimeButtons()
             }
         }
@@ -135,9 +134,9 @@ class TimeLimitsActivity : AppCompatActivity() {
 
     private fun updateBedtimeButtons() {
         binding.btnBedStart.text = getString(R.string.bedtime_from) + " " +
-            TimeRules.formatTimeOfDay(prefs.bedtimeStartMinutes)
+            TimeRules.formatTimeOfDay(viewModel.bedtimeStartMinutes)
         binding.btnBedEnd.text = getString(R.string.bedtime_to) + " " +
-            TimeRules.formatTimeOfDay(prefs.bedtimeEndMinutes)
+            TimeRules.formatTimeOfDay(viewModel.bedtimeEndMinutes)
     }
 
     private fun pickTime(currentMinutes: Int, onPicked: (Int) -> Unit) {

@@ -266,10 +266,12 @@ siguiente:
 
 ### 4. Arquitectura y calidad del código
 
-- [x] Migrar a **MVVM** ✅ *(v1.9, en curso)*: introducido `ViewModel`
-  (`androidx.lifecycle`); `WebFilterActivity` ya delega su estado en
-  `WebFilterViewModel` como patrón semilla. *(Pendiente: migrar el resto de
-  pantallas.)*
+- [x] Migrar a **MVVM** ✅ *(v1.9–v1.10)*: las pantallas de configuración
+  del panel (filtro web, perfiles, límites de tiempo, uso de hoy y selección
+  de apps) delegan su estado y persistencia en un `ViewModel`
+  (`androidx.lifecycle`), quedando las Activities como capa de solo pintado.
+  *(Pendiente: `StateFlow`/`LiveData` observables y migrar las pantallas de
+  orquestación —panel, nube— que hoy coordinan servicios y permisos.)*
 - [ ] Inyección de dependencias con **Hilt** en vez de instanciar
   `PreferencesManager` manualmente en cada pantalla.
 - [x] Persistencia con **Room** para el historial de uso ✅ *(v1.2,

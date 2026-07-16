@@ -5,28 +5,29 @@ import android.text.InputType
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kidsguard.app.R
-import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.databinding.ActivityProfilesBinding
 import com.kidsguard.app.model.ChildProfile
 
 /**
  * Gestión de perfiles de hijos: cada perfil tiene sus propias apps
  * permitidas, límites y horarios. Tocar un perfil lo activa.
+ *
+ * El estado y el CRUD viven en ProfilesViewModel (MVVM).
  */
 class ProfilesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfilesBinding
-    private lateinit var prefs: PreferencesManager
+    private val viewModel: ProfilesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfilesBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        prefs = PreferencesManager(this)
 
         binding.rvProfiles.layoutManager = LinearLayoutManager(this)
         binding.btnAdd.setOnClickListener { showEditDialog(null) }
@@ -35,10 +36,10 @@ class ProfilesActivity : AppCompatActivity() {
 
     private fun refresh() {
         binding.rvProfiles.adapter = ProfileAdapter(
-            profiles = prefs.profiles(),
-            activeId = prefs.activeProfileId,
+            profiles = viewModel.profiles(),
+            activeId = viewModel.activeProfileId,
             onSelect = { profile ->
-                prefs.activeProfileId = profile.id
+                viewModel.activate(profile.id)
                 refresh()
             },
             onEdit = { showEditDialog(it) },
@@ -72,9 +73,9 @@ class ProfilesActivity : AppCompatActivity() {
                 if (name.isEmpty()) return@setPositiveButton
                 val emoji = emojiInput.text.toString().trim()
                 if (profile == null) {
-                    prefs.addProfile(name, emoji)
+                    viewModel.addProfile(name, emoji)
                 } else {
-                    prefs.updateProfile(
+                    viewModel.updateProfile(
                         profile.copy(name = name, emoji = emoji.ifBlank { profile.emoji })
                     )
                 }
@@ -89,7 +90,7 @@ class ProfilesActivity : AppCompatActivity() {
             .setTitle(R.string.delete_profile)
             .setMessage(getString(R.string.delete_profile_confirm, profile.name))
             .setPositiveButton(R.string.ok) { _, _ ->
-                if (!prefs.deleteProfile(profile.id)) {
+                if (!viewModel.deleteProfile(profile.id)) {
                     Toast.makeText(this, R.string.cannot_delete_last, Toast.LENGTH_SHORT).show()
                 }
                 refresh()
