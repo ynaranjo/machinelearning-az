@@ -18,12 +18,12 @@ object WebFilter {
 
     fun isAllowed(prefs: PreferencesManager, url: String): Boolean {
         val host = hostOf(url) ?: return true
-        val blocked = prefs.blockedDomains.any { host.matchesDomain(it) }
-        return if (prefs.webWhitelistMode) {
-            prefs.allowedDomains.any { host.matchesDomain(it) } && !blocked
-        } else {
-            !blocked
-        }
+        return DomainMatcher.isAllowed(
+            host = host,
+            whitelistMode = prefs.webWhitelistMode,
+            blocked = prefs.blockedDomains,
+            allowed = prefs.allowedDomains
+        )
     }
 
     /**
@@ -51,24 +51,11 @@ object WebFilter {
         } == true
 
     /** Normaliza lo que escribe el adulto a un dominio limpio ("ejemplo.com"). */
-    fun normalizeDomain(input: String): String =
-        input.trim().lowercase()
-            .removePrefix("https://")
-            .removePrefix("http://")
-            .removePrefix("www.")
-            .substringBefore('/')
+    fun normalizeDomain(input: String): String = DomainMatcher.normalize(input)
 
     private fun appendParam(uri: Uri, key: String, value: String): String =
         uri.buildUpon().appendQueryParameter(key, value).build().toString()
 
     private fun hostOf(url: String): String? =
         runCatching { Uri.parse(url).host?.lowercase() }.getOrNull()
-
-    /** El host coincide con el dominio o es un subdominio suyo. */
-    private fun String.matchesDomain(domain: String): Boolean {
-        val d = domain.trim().lowercase().removePrefix("www.")
-        if (d.isEmpty()) return false
-        val h = removePrefix("www.")
-        return h == d || h.endsWith(".$d")
-    }
 }

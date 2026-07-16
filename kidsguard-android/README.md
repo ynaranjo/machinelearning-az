@@ -266,8 +266,10 @@ siguiente:
 
 ### 4. Arquitectura y calidad del código
 
-- [ ] Migrar a **MVVM** con `ViewModel` + `StateFlow`/`LiveData` en vez de
-  lógica directa en las `Activity`.
+- [x] Migrar a **MVVM** ✅ *(v1.9, en curso)*: introducido `ViewModel`
+  (`androidx.lifecycle`); `WebFilterActivity` ya delega su estado en
+  `WebFilterViewModel` como patrón semilla. *(Pendiente: migrar el resto de
+  pantallas.)*
 - [ ] Inyección de dependencias con **Hilt** en vez de instanciar
   `PreferencesManager` manualmente en cada pantalla.
 - [x] Persistencia con **Room** para el historial de uso ✅ *(v1.2,
@@ -278,9 +280,11 @@ siguiente:
   hilo principal al leer preferencias.
 - [ ] Modularización (`:core`, `:data`, `:feature-launcher`,
   `:feature-parent`) si el proyecto crece.
-- [x] Tests ✅ *(v1.4, parcial)*: tests unitarios de `TimeRules` (horario de
-  dormir con cruce de medianoche, formato de duraciones) ejecutados en cada
-  build de CI. *(Pendiente: `PreferencesManager`/`BlockEvaluator` con
+- [x] Tests ✅ *(v1.4–v1.9)*: la lógica pura se extrajo a helpers sin
+  dependencias de Android (`TimeRules`, `DomainMatcher`, `LimitChecker`) con
+  tests unitarios que corren en cada build de CI (horario de dormir,
+  coincidencia de dominios y subdominios, aritmética de límites y tiempo
+  restante). *(Pendiente: `PreferencesManager`/`BlockEvaluator` con
   Robolectric, instrumentados y Espresso.)*
 - [ ] Linting automático (`ktlint`/`detekt`) integrado en CI.
 - [ ] `isMinifyEnabled` + reglas ProGuard reales para el build de release.

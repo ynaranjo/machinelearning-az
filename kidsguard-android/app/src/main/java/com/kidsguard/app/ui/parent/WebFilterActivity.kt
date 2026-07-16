@@ -5,43 +5,47 @@ import android.text.InputType
 import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kidsguard.app.R
-import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.databinding.ActivityWebFilterBinding
-import com.kidsguard.app.util.WebFilter
 
 /**
  * Configura el navegador infantil del perfil activo: activarlo, elegir el
  * modo (lista negra o blanca) y gestionar la lista de dominios.
+ *
+ * La lógica de estado vive en WebFilterViewModel (patrón MVVM); esta
+ * Activity solo pinta y delega.
  */
 class WebFilterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityWebFilterBinding
-    private lateinit var prefs: PreferencesManager
+    private val viewModel: WebFilterViewModel by viewModels()
     private lateinit var adapter: DomainAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWebFilterBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        prefs = PreferencesManager(this)
 
-        binding.swBrowser.isChecked = prefs.browserEnabled
+        binding.swBrowser.isChecked = viewModel.browserEnabled
         binding.swBrowser.setOnCheckedChangeListener { _, checked ->
-            prefs.browserEnabled = checked
+            viewModel.browserEnabled = checked
             updateEnabledState()
         }
 
-        binding.swWhitelist.isChecked = prefs.webWhitelistMode
+        binding.swWhitelist.isChecked = viewModel.whitelistMode
         binding.swWhitelist.setOnCheckedChangeListener { _, checked ->
-            prefs.webWhitelistMode = checked
+            viewModel.whitelistMode = checked
             refresh()
         }
 
-        adapter = DomainAdapter { domain -> removeDomain(domain) }
+        adapter = DomainAdapter { domain ->
+            viewModel.removeDomain(domain)
+            refresh()
+        }
         binding.rvDomains.layoutManager = LinearLayoutManager(this)
         binding.rvDomains.adapter = adapter
 
@@ -52,27 +56,19 @@ class WebFilterActivity : AppCompatActivity() {
     }
 
     private fun updateEnabledState() {
-        val enabled = prefs.browserEnabled
-        binding.groupRules.visibility = if (enabled) View.VISIBLE else View.GONE
+        binding.groupRules.visibility =
+            if (viewModel.browserEnabled) View.VISIBLE else View.GONE
     }
 
     private fun refresh() {
-        val whitelist = prefs.webWhitelistMode
+        val whitelist = viewModel.whitelistMode
         binding.tvListTitle.text = getString(
             if (whitelist) R.string.web_allowed_list else R.string.web_blocked_list
         )
         binding.tvListHint.text = getString(
             if (whitelist) R.string.web_whitelist_hint else R.string.web_blacklist_hint
         )
-        adapter.submit(currentDomains().sorted())
-    }
-
-    private fun currentDomains(): Set<String> =
-        if (prefs.webWhitelistMode) prefs.allowedDomains else prefs.blockedDomains
-
-    private fun saveDomains(domains: Set<String>) {
-        if (prefs.webWhitelistMode) prefs.allowedDomains = domains
-        else prefs.blockedDomains = domains
+        adapter.submit(viewModel.currentDomains())
     }
 
     private fun showAddDialog() {
@@ -89,18 +85,9 @@ class WebFilterActivity : AppCompatActivity() {
             .setTitle(R.string.web_add_domain)
             .setView(container)
             .setPositiveButton(R.string.save) { _, _ ->
-                val domain = WebFilter.normalizeDomain(input.text.toString())
-                if (domain.isNotEmpty()) {
-                    saveDomains(currentDomains() + domain)
-                    refresh()
-                }
+                if (viewModel.addDomain(input.text.toString())) refresh()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
-    }
-
-    private fun removeDomain(domain: String) {
-        saveDomains(currentDomains() - domain)
-        refresh()
     }
 }

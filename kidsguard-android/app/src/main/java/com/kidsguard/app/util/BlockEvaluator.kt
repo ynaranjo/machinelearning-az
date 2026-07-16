@@ -59,15 +59,16 @@ object BlockEvaluator {
         val extraMinutes = prefs.extraMinutesToday
 
         val dailyLimit = prefs.dailyLimitMinutes
-        if (dailyLimit >= 0 &&
-            prefs.totalUsageSecondsToday() >= (dailyLimit + extraMinutes) * 60
+        if (LimitChecker.isLimitReached(
+                prefs.totalUsageSecondsToday(), dailyLimit, extraMinutes
+            )
         ) {
             return BlockReason.DAILY_LIMIT
         }
 
         val appLimit = prefs.appLimitFor(packageName)
         if (appLimit != null &&
-            prefs.usageSecondsFor(packageName) >= (appLimit + extraMinutes) * 60
+            LimitChecker.isLimitReached(prefs.usageSecondsFor(packageName), appLimit, extraMinutes)
         ) {
             return BlockReason.APP_LIMIT
         }
@@ -79,7 +80,7 @@ object BlockEvaluator {
             val categoryUsage = prefs.usageMapToday().entries.sumOf { (pkg, seconds) ->
                 if (AppCategories.of(context, pkg) == category) seconds else 0
             }
-            if (categoryUsage >= (categoryLimit + extraMinutes) * 60) {
+            if (LimitChecker.isLimitReached(categoryUsage, categoryLimit, extraMinutes)) {
                 return BlockReason.CATEGORY_LIMIT
             }
         }

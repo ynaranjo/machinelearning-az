@@ -22,6 +22,7 @@ import com.kidsguard.app.ui.browser.KidsBrowserActivity
 import com.kidsguard.app.ui.pin.PinActivity
 import com.kidsguard.app.ui.pin.PinSetupActivity
 import com.kidsguard.app.util.DeviceOwnerManager
+import com.kidsguard.app.util.LimitChecker
 import com.kidsguard.app.util.TimeRules
 
 /**
@@ -124,8 +125,9 @@ class KidsHomeActivity : AppCompatActivity() {
 
         val dailyLimit = prefs.dailyLimitMinutes
         if (dailyLimit >= 0) {
-            val allowedSeconds = (dailyLimit + prefs.extraMinutesToday) * 60
-            val remaining = (allowedSeconds - prefs.totalUsageSecondsToday()).coerceAtLeast(0)
+            val remaining = LimitChecker.remainingSeconds(
+                prefs.totalUsageSecondsToday(), dailyLimit, prefs.extraMinutesToday
+            )
             binding.tvTimeLeft.text =
                 getString(R.string.time_left_fmt, TimeRules.formatDuration(remaining))
             binding.tvTimeLeft.visibility = View.VISIBLE
