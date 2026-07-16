@@ -63,6 +63,8 @@
         <activity android:name=".ui.parent.AppSelectionActivity" android:exported="false" />
         <activity android:name=".ui.parent.TimeLimitsActivity" android:exported="false" />
         <activity android:name=".ui.parent.UsageStatsActivity" android:exported="false" />
+        <activity android:name=".ui.parent.ProfilesActivity" android:exported="false" />
+        <activity android:name=".ui.parent.WeeklyReportActivity" android:exported="false" />
         <activity android:name=".ui.parent.SetupActivity" android:exported="false" />
 
         <!-- Pantalla mostrada al bloquear una app -->

@@ -48,6 +48,12 @@ class ParentDashboardActivity : AppCompatActivity() {
         binding.btnUsage.setOnClickListener {
             startActivity(Intent(this, UsageStatsActivity::class.java))
         }
+        binding.btnWeekly.setOnClickListener {
+            startActivity(Intent(this, WeeklyReportActivity::class.java))
+        }
+        binding.btnProfiles.setOnClickListener {
+            startActivity(Intent(this, ProfilesActivity::class.java))
+        }
         binding.btnSetup.setOnClickListener {
             startActivity(Intent(this, SetupActivity::class.java))
         }
@@ -64,6 +70,10 @@ class ParentDashboardActivity : AppCompatActivity() {
         updatingSwitch = true
         binding.swChildMode.isChecked = prefs.childModeActive
         updatingSwitch = false
+
+        val profile = prefs.activeProfile
+        binding.tvActiveProfile.text =
+            getString(R.string.active_profile_fmt, "${profile.emoji} ${profile.name}")
 
         binding.tvModeHint.text = if (Permissions.hasAccessibility(this)) {
             getString(R.string.child_mode_desc)

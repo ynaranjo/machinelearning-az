@@ -120,6 +120,36 @@
     <string name="biometric_use_pin">Usar PIN</string>
     <string name="biometric_switch">Desbloqueo con huella/rostro</string>
 
+    <!-- Perfiles -->
+    <string name="btn_profiles">👧  Perfiles de hijos</string>
+    <string name="profiles_hint">Cada perfil tiene sus propias apps permitidas, límites y horarios. Toca un perfil para activarlo.</string>
+    <string name="active_profile_fmt">Perfil activo: %1$s</string>
+    <string name="add_profile">Añadir perfil</string>
+    <string name="edit_profile">Editar perfil</string>
+    <string name="delete_profile">Eliminar perfil</string>
+    <string name="delete_profile_confirm">¿Eliminar el perfil «%1$s»? Se perderán sus apps permitidas y límites.</string>
+    <string name="cannot_delete_last">Debe existir al menos un perfil</string>
+    <string name="profile_name_hint">Nombre</string>
+    <string name="profile_emoji_hint">Emoji (opcional)</string>
+    <string name="profile_active">Activo</string>
+
+    <!-- Informe semanal -->
+    <string name="btn_weekly">📈  Informe semanal</string>
+    <string name="weekly_title">Informe semanal</string>
+    <string name="weekly_top_apps">Top apps de la semana</string>
+    <string name="weekly_empty">Aún no hay datos de uso esta semana.</string>
+
+    <!-- Categorías de apps -->
+    <string name="category_games">🎮 Juegos</string>
+    <string name="category_audio">🎵 Música y audio</string>
+    <string name="category_video">🎬 Vídeo</string>
+    <string name="category_image">📷 Fotos e imágenes</string>
+    <string name="category_social">💬 Social</string>
+    <string name="category_news">📰 Noticias</string>
+    <string name="category_maps">🗺️ Mapas</string>
+    <string name="category_productivity">📝 Productividad</string>
+    <string name="category_other">📦 Otras apps</string>
+
     <!-- Alertas al adulto -->
     <string name="alert_channel_name">Alertas para adultos</string>
     <string name="alert_blocked_attempt_title">Intento de abrir una app bloqueada</string>

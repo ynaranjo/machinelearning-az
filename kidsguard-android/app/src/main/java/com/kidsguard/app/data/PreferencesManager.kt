@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import android.util.Base64
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.kidsguard.app.model.ChildProfile
+import org.json.JSONArray
 import org.json.JSONObject
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -13,18 +15,25 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Almacén central de configuración: PIN, apps permitidas, límites y uso diario.
+ * Almacén central de configuración: PIN, perfiles de hijos, apps permitidas,
+ * límites y uso diario.
  *
  * Los datos se guardan en EncryptedSharedPreferences (Jetpack Security,
- * AES-256). Si el cifrado no está disponible en el dispositivo se usa el
- * almacén plano como último recurso. Los datos de una instalación anterior
- * sin cifrar se migran automáticamente la primera vez.
+ * AES-256), con migración automática desde el almacén plano anterior.
+ *
+ * Desde v1.2 la configuración de protección (apps permitidas, límites,
+ * horarios y uso) es POR PERFIL: las claves llevan el sufijo del perfil
+ * activo. El PIN, la biometría y el estado del modo niños son globales.
  */
 class PreferencesManager(context: Context) {
 
     private val prefs: SharedPreferences = obtainPrefs(context.applicationContext)
 
-    // ---------- PIN ----------
+    init {
+        ensureProfileSetup()
+    }
+
+    // ---------- PIN (global) ----------
 
     val isPinSet: Boolean
         get() = prefs.getString(KEY_PIN_HASH, null) != null
@@ -42,7 +51,7 @@ class PreferencesManager(context: Context) {
         return prefs.getString(KEY_PIN_HASH, null) == hash(pin, salt)
     }
 
-    // ---------- Recuperación de PIN (pregunta de seguridad) ----------
+    // ---------- Recuperación de PIN (global) ----------
 
     val isSecurityQuestionSet: Boolean
         get() = prefs.getString(KEY_SEC_QUESTION, null) != null
@@ -67,51 +76,173 @@ class PreferencesManager(context: Context) {
 
     private fun normalizeAnswer(answer: String): String = answer.trim().lowercase()
 
-    // ---------- Desbloqueo biométrico ----------
+    // ---------- Desbloqueo biométrico (global) ----------
 
     var biometricEnabled: Boolean
         get() = prefs.getBoolean(KEY_BIOMETRIC, false)
         set(value) = prefs.edit().putBoolean(KEY_BIOMETRIC, value).apply()
 
-    // ---------- Apps permitidas ----------
-
-    var allowedApps: Set<String>
-        get() = prefs.getStringSet(KEY_ALLOWED_APPS, emptySet())?.toSet() ?: emptySet()
-        set(value) = prefs.edit().putStringSet(KEY_ALLOWED_APPS, value.toSet()).apply()
-
-    // ---------- Modo niños ----------
+    // ---------- Modo niños (global) ----------
 
     var childModeActive: Boolean
         get() = prefs.getBoolean(KEY_CHILD_MODE, false)
         set(value) = prefs.edit().putBoolean(KEY_CHILD_MODE, value).apply()
 
-    // ---------- Límite diario ----------
+    // ---------- Perfiles de hijos ----------
+
+    var activeProfileId: Int
+        get() = prefs.getInt(KEY_ACTIVE_PROFILE, 1)
+        set(value) = prefs.edit().putInt(KEY_ACTIVE_PROFILE, value).apply()
+
+    val activeProfile: ChildProfile
+        get() {
+            val list = profiles()
+            return list.firstOrNull { it.id == activeProfileId }
+                ?: list.firstOrNull()
+                ?: DEFAULT_PROFILE
+        }
+
+    fun profiles(): List<ChildProfile> {
+        val array = JSONArray(prefs.getString(KEY_PROFILES, "[]") ?: "[]")
+        return (0 until array.length()).map { i ->
+            val json = array.getJSONObject(i)
+            ChildProfile(
+                id = json.getInt("id"),
+                name = json.getString("name"),
+                emoji = json.optString("emoji", DEFAULT_PROFILE.emoji)
+            )
+        }
+    }
+
+    fun addProfile(name: String, emoji: String): ChildProfile {
+        val list = profiles()
+        val id = (list.maxOfOrNull { it.id } ?: 0) + 1
+        val profile = ChildProfile(id, name, emoji.ifBlank { DEFAULT_PROFILE.emoji })
+        saveProfiles(list + profile)
+        return profile
+    }
+
+    fun updateProfile(profile: ChildProfile) {
+        saveProfiles(profiles().map { if (it.id == profile.id) profile else it })
+    }
+
+    /** No permite borrar el último perfil. Limpia su configuración. */
+    fun deleteProfile(id: Int): Boolean {
+        val list = profiles()
+        if (list.size <= 1) return false
+        saveProfiles(list.filter { it.id != id })
+
+        val editor = prefs.edit()
+        PROFILE_SCOPED_KEYS.forEach { base -> editor.remove(base + PROFILE_SUFFIX + id) }
+        editor.apply()
+
+        if (activeProfileId == id) {
+            activeProfileId = profiles().first().id
+        }
+        return true
+    }
+
+    private fun saveProfiles(list: List<ChildProfile>) {
+        val array = JSONArray()
+        list.forEach {
+            array.put(
+                JSONObject()
+                    .put("id", it.id)
+                    .put("name", it.name)
+                    .put("emoji", it.emoji)
+            )
+        }
+        prefs.edit().putString(KEY_PROFILES, array.toString()).apply()
+    }
+
+    /** Clave con el sufijo del perfil activo. */
+    private fun pk(base: String): String = base + PROFILE_SUFFIX + activeProfileId
+
+    /**
+     * Primera ejecución tras actualizar (o instalación nueva): crea el
+     * perfil 1 y migra la configuración global anterior a sus claves.
+     */
+    private fun ensureProfileSetup() {
+        if (prefs.getString(KEY_PROFILES, null) != null) return
+
+        val editor = prefs.edit()
+            .putString(
+                KEY_PROFILES,
+                JSONArray().put(
+                    JSONObject()
+                        .put("id", DEFAULT_PROFILE.id)
+                        .put("name", DEFAULT_PROFILE.name)
+                        .put("emoji", DEFAULT_PROFILE.emoji)
+                ).toString()
+            )
+            .putInt(KEY_ACTIVE_PROFILE, DEFAULT_PROFILE.id)
+
+        val suffix = PROFILE_SUFFIX + DEFAULT_PROFILE.id
+        prefs.getStringSet(KEY_ALLOWED_APPS, null)?.let {
+            editor.putStringSet(KEY_ALLOWED_APPS + suffix, it).remove(KEY_ALLOWED_APPS)
+        }
+        if (prefs.contains(KEY_DAILY_LIMIT)) {
+            editor.putInt(KEY_DAILY_LIMIT + suffix, prefs.getInt(KEY_DAILY_LIMIT, -1))
+                .remove(KEY_DAILY_LIMIT)
+        }
+        if (prefs.contains(KEY_BEDTIME_ENABLED)) {
+            editor.putBoolean(
+                KEY_BEDTIME_ENABLED + suffix, prefs.getBoolean(KEY_BEDTIME_ENABLED, false)
+            ).remove(KEY_BEDTIME_ENABLED)
+        }
+        if (prefs.contains(KEY_BEDTIME_START)) {
+            editor.putInt(KEY_BEDTIME_START + suffix, prefs.getInt(KEY_BEDTIME_START, 21 * 60))
+                .remove(KEY_BEDTIME_START)
+        }
+        if (prefs.contains(KEY_BEDTIME_END)) {
+            editor.putInt(KEY_BEDTIME_END + suffix, prefs.getInt(KEY_BEDTIME_END, 7 * 60))
+                .remove(KEY_BEDTIME_END)
+        }
+        prefs.getString(KEY_APP_LIMITS, null)?.let {
+            editor.putString(KEY_APP_LIMITS + suffix, it).remove(KEY_APP_LIMITS)
+        }
+        prefs.getString(KEY_USAGE_DATE, null)?.let {
+            editor.putString(KEY_USAGE_DATE + suffix, it).remove(KEY_USAGE_DATE)
+        }
+        prefs.getString(KEY_USAGE_MAP, null)?.let {
+            editor.putString(KEY_USAGE_MAP + suffix, it).remove(KEY_USAGE_MAP)
+        }
+        editor.apply()
+    }
+
+    // ---------- Apps permitidas (por perfil) ----------
+
+    var allowedApps: Set<String>
+        get() = prefs.getStringSet(pk(KEY_ALLOWED_APPS), emptySet())?.toSet() ?: emptySet()
+        set(value) = prefs.edit().putStringSet(pk(KEY_ALLOWED_APPS), value.toSet()).apply()
+
+    // ---------- Límite diario (por perfil) ----------
 
     /** Minutos por día. -1 = sin límite. */
     var dailyLimitMinutes: Int
-        get() = prefs.getInt(KEY_DAILY_LIMIT, -1)
-        set(value) = prefs.edit().putInt(KEY_DAILY_LIMIT, value).apply()
+        get() = prefs.getInt(pk(KEY_DAILY_LIMIT), -1)
+        set(value) = prefs.edit().putInt(pk(KEY_DAILY_LIMIT), value).apply()
 
-    // ---------- Hora de dormir ----------
+    // ---------- Hora de dormir (por perfil) ----------
 
     var bedtimeEnabled: Boolean
-        get() = prefs.getBoolean(KEY_BEDTIME_ENABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_BEDTIME_ENABLED, value).apply()
+        get() = prefs.getBoolean(pk(KEY_BEDTIME_ENABLED), false)
+        set(value) = prefs.edit().putBoolean(pk(KEY_BEDTIME_ENABLED), value).apply()
 
     /** Minutos desde medianoche. */
     var bedtimeStartMinutes: Int
-        get() = prefs.getInt(KEY_BEDTIME_START, 21 * 60)
-        set(value) = prefs.edit().putInt(KEY_BEDTIME_START, value).apply()
+        get() = prefs.getInt(pk(KEY_BEDTIME_START), 21 * 60)
+        set(value) = prefs.edit().putInt(pk(KEY_BEDTIME_START), value).apply()
 
     var bedtimeEndMinutes: Int
-        get() = prefs.getInt(KEY_BEDTIME_END, 7 * 60)
-        set(value) = prefs.edit().putInt(KEY_BEDTIME_END, value).apply()
+        get() = prefs.getInt(pk(KEY_BEDTIME_END), 7 * 60)
+        set(value) = prefs.edit().putInt(pk(KEY_BEDTIME_END), value).apply()
 
-    // ---------- Límites por app ----------
+    // ---------- Límites por app (por perfil) ----------
 
     /** Mapa paquete -> minutos por día. */
     fun appLimits(): Map<String, Int> {
-        val json = JSONObject(prefs.getString(KEY_APP_LIMITS, "{}") ?: "{}")
+        val json = JSONObject(prefs.getString(pk(KEY_APP_LIMITS), "{}") ?: "{}")
         val map = mutableMapOf<String, Int>()
         json.keys().forEach { key -> map[key] = json.getInt(key) }
         return map
@@ -121,24 +252,24 @@ class PreferencesManager(context: Context) {
 
     /** minutes null o <= 0 elimina el límite. */
     fun setAppLimit(packageName: String, minutes: Int?) {
-        val json = JSONObject(prefs.getString(KEY_APP_LIMITS, "{}") ?: "{}")
+        val json = JSONObject(prefs.getString(pk(KEY_APP_LIMITS), "{}") ?: "{}")
         if (minutes == null || minutes <= 0) {
             json.remove(packageName)
         } else {
             json.put(packageName, minutes)
         }
-        prefs.edit().putString(KEY_APP_LIMITS, json.toString()).apply()
+        prefs.edit().putString(pk(KEY_APP_LIMITS), json.toString()).apply()
     }
 
-    // ---------- Uso diario ----------
+    // ---------- Uso diario (por perfil) ----------
 
     private fun today(): String =
         SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
 
     private fun usageJson(): JSONObject {
-        val storedDate = prefs.getString(KEY_USAGE_DATE, null)
+        val storedDate = prefs.getString(pk(KEY_USAGE_DATE), null)
         return if (storedDate == today()) {
-            JSONObject(prefs.getString(KEY_USAGE_MAP, "{}") ?: "{}")
+            JSONObject(prefs.getString(pk(KEY_USAGE_MAP), "{}") ?: "{}")
         } else {
             JSONObject()
         }
@@ -148,8 +279,8 @@ class PreferencesManager(context: Context) {
         val json = usageJson()
         json.put(packageName, json.optInt(packageName, 0) + seconds)
         prefs.edit()
-            .putString(KEY_USAGE_DATE, today())
-            .putString(KEY_USAGE_MAP, json.toString())
+            .putString(pk(KEY_USAGE_DATE), today())
+            .putString(pk(KEY_USAGE_MAP), json.toString())
             .apply()
     }
 
@@ -186,14 +317,19 @@ class PreferencesManager(context: Context) {
         private const val LEGACY_FILE_NAME = "kidsguard_prefs"
         private const val ENCRYPTED_FILE_NAME = "kidsguard_secure_prefs"
 
+        private val DEFAULT_PROFILE = ChildProfile(1, "Mi peque", "🧒")
+        private const val PROFILE_SUFFIX = "_p"
+
         private const val KEY_PIN_HASH = "pin_hash"
         private const val KEY_PIN_SALT = "pin_salt"
         private const val KEY_SEC_QUESTION = "sec_question"
         private const val KEY_SEC_ANSWER_HASH = "sec_answer_hash"
         private const val KEY_SEC_ANSWER_SALT = "sec_answer_salt"
         private const val KEY_BIOMETRIC = "biometric_enabled"
-        private const val KEY_ALLOWED_APPS = "allowed_apps"
         private const val KEY_CHILD_MODE = "child_mode_active"
+        private const val KEY_PROFILES = "profiles_json"
+        private const val KEY_ACTIVE_PROFILE = "active_profile_id"
+        private const val KEY_ALLOWED_APPS = "allowed_apps"
         private const val KEY_DAILY_LIMIT = "daily_limit_minutes"
         private const val KEY_BEDTIME_ENABLED = "bedtime_enabled"
         private const val KEY_BEDTIME_START = "bedtime_start_minutes"
@@ -201,6 +337,13 @@ class PreferencesManager(context: Context) {
         private const val KEY_APP_LIMITS = "app_limits_json"
         private const val KEY_USAGE_DATE = "usage_date"
         private const val KEY_USAGE_MAP = "usage_map_json"
+
+        /** Claves que existen una vez por perfil. */
+        private val PROFILE_SCOPED_KEYS = listOf(
+            KEY_ALLOWED_APPS, KEY_DAILY_LIMIT,
+            KEY_BEDTIME_ENABLED, KEY_BEDTIME_START, KEY_BEDTIME_END,
+            KEY_APP_LIMITS, KEY_USAGE_DATE, KEY_USAGE_MAP
+        )
 
         @Volatile
         private var cachedPrefs: SharedPreferences? = null

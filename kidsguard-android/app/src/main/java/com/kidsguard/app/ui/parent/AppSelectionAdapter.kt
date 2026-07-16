@@ -4,29 +4,56 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.kidsguard.app.databinding.ItemAppSelectBinding
+import com.kidsguard.app.databinding.ItemCategoryHeaderBinding
 import com.kidsguard.app.model.AppInfo
 
+/** Lista de selección de apps agrupada por categorías del sistema. */
 class AppSelectionAdapter(
-    private val apps: List<AppInfo>,
+    private val items: List<SelectionItem>,
     initiallyAllowed: Set<String>,
     private val onToggle: (packageName: String, allowed: Boolean) -> Unit
-) : RecyclerView.Adapter<AppSelectionAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    sealed class SelectionItem {
+        data class Header(val title: String) : SelectionItem()
+        data class App(val info: AppInfo) : SelectionItem()
+    }
 
     private val allowed = initiallyAllowed.toMutableSet()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemAppSelectBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
-        )
-        return ViewHolder(binding)
+    override fun getItemViewType(position: Int): Int = when (items[position]) {
+        is SelectionItem.Header -> TYPE_HEADER
+        is SelectionItem.App -> TYPE_APP
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-        holder.bind(apps[position])
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return if (viewType == TYPE_HEADER) {
+            HeaderViewHolder(ItemCategoryHeaderBinding.inflate(inflater, parent, false))
+        } else {
+            AppViewHolder(ItemAppSelectBinding.inflate(inflater, parent, false))
+        }
+    }
 
-    override fun getItemCount(): Int = apps.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = items[position]) {
+            is SelectionItem.Header -> (holder as HeaderViewHolder).bind(item.title)
+            is SelectionItem.App -> (holder as AppViewHolder).bind(item.info)
+        }
+    }
 
-    inner class ViewHolder(
+    override fun getItemCount(): Int = items.size
+
+    inner class HeaderViewHolder(
+        private val binding: ItemCategoryHeaderBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(title: String) {
+            binding.tvHeader.text = title
+        }
+    }
+
+    inner class AppViewHolder(
         private val binding: ItemAppSelectBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -41,5 +68,10 @@ class AppSelectionAdapter(
             }
             binding.root.setOnClickListener { binding.cbAllowed.toggle() }
         }
+    }
+
+    companion object {
+        private const val TYPE_HEADER = 0
+        private const val TYPE_APP = 1
     }
 }

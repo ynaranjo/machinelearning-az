@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.kidsguard.app.KidsGuardApp
 import com.kidsguard.app.R
 import com.kidsguard.app.data.PreferencesManager
+import com.kidsguard.app.data.UsageHistoryRepository
 import com.kidsguard.app.ui.MainActivity
 import com.kidsguard.app.util.AdultNotifier
 import com.kidsguard.app.util.BlockEvaluator
@@ -85,7 +86,9 @@ class AppMonitorService : Service() {
         val reason = BlockEvaluator.evaluate(this, prefs, foreground)
         if (reason == null) {
             // App permitida y dentro de los límites: contabilizar uso.
-            prefs.addUsageSeconds(foreground, (POLL_INTERVAL_MS / 1000L).toInt())
+            val seconds = (POLL_INTERVAL_MS / 1000L).toInt()
+            prefs.addUsageSeconds(foreground, seconds)
+            UsageHistoryRepository.record(this, prefs.activeProfileId, foreground, seconds)
             return
         }
         BlockEvaluator.block(this, foreground, reason)

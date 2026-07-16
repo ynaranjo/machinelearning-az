@@ -25,6 +25,9 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 | 🔔 Alertas al adulto *(v1.1)* | Notificación cuando el niño intenta abrir una app bloqueada o cuando se revoca un permiso de protección. |
 | 🔐 Almacenamiento cifrado *(v1.1)* | Toda la configuración se guarda en `EncryptedSharedPreferences` (AES-256), con migración automática de datos previos. |
 | ♻️ Watchdog *(v1.1)* | `WorkManager` revive el servicio de vigilancia cada 15 min si un fabricante agresivo con la batería lo mata. |
+| 👧 Perfiles múltiples *(v1.2)* | Varios hijos en el mismo dispositivo, cada uno con sus apps permitidas, límites, horarios y uso. |
+| 📈 Informe semanal *(v1.2)* | Historial de 30 días en base de datos local (Room): barras por día y top de apps de la semana, por perfil. |
+| 🗂️ Categorías *(v1.2)* | La selección de apps se agrupa por categoría del sistema (juegos, vídeo, social…) para configurar más rápido. |
 
 ## Estructura del proyecto
 
@@ -164,8 +167,10 @@ siguiente:
   navegador entero.
 - [ ] **Control de instalación/desinstalación de apps y compras** (bloquear
   Play Store o exigir PIN para instalar, desinstalar o comprar).
-- [ ] **Múltiples perfiles de hijos** con distintas listas blancas, límites
-  y horarios por perfil (hoy solo hay una configuración global).
+- [x] **Múltiples perfiles de hijos** ✅ *(v1.2)*: perfiles con nombre y
+  emoji, cada uno con su lista blanca, límites, horarios y uso propios;
+  gestión completa desde el panel (crear, editar, eliminar, activar) y
+  migración automática de la configuración anterior al primer perfil.
 - [ ] **Control y monitorización remota** desde el móvil del adulto (app
   complementaria o panel web) sin tener que tener el dispositivo del niño
   en la mano.
@@ -173,14 +178,16 @@ siguiente:
   app bloqueada y permisos de protección revocados, con cooldown anti-spam.
   *(Pendiente: desinstalación intentada, dispositivo apagado/reiniciado —
   requieren backend/push.)*
-- [ ] **Reportes de uso semanales/mensuales** con gráficos (no solo el día
-  actual) y exportación/histórico persistente (hoy el uso se resetea cada
-  día y no se conserva).
+- [x] **Reportes de uso semanales e histórico persistente** ✅ *(v1.2,
+  parcial)*: base de datos Room que conserva 30 días de uso por perfil e
+  informe semanal con barras por día y top de apps. *(Pendiente: reportes
+  mensuales y exportación.)*
 - [ ] **Geolocalización y geovallas** (zona segura / alerta de salida).
 - [ ] **Modo "Escuela"** — perfil temporal más restrictivo activable por
   horario o con un toque, sin tocar la configuración normal.
-- [ ] **Categorías de apps** (juegos, educativas, redes sociales) para
-  aplicar reglas por categoría en vez de app por app.
+- [x] **Categorías de apps** ✅ *(v1.2, parcial)*: la selección de apps se
+  agrupa por la categoría declarada por cada app (juegos, vídeo, social…).
+  *(Pendiente: límites de tiempo por categoría.)*
 - [ ] **Extensión de tiempo bajo petición**: el niño solicita más tiempo
   desde la pantalla de bloqueo y el adulto lo aprueba remotamente.
 
@@ -204,9 +211,10 @@ siguiente:
   lógica directa en las `Activity`.
 - [ ] Inyección de dependencias con **Hilt** en vez de instanciar
   `PreferencesManager` manualmente en cada pantalla.
-- [ ] Persistencia con **Room** para historial de uso, perfiles y reglas
-  (las `SharedPreferences` con JSON manual no escalan a multi-perfil ni a
-  histórico).
+- [x] Persistencia con **Room** para el historial de uso ✅ *(v1.2,
+  parcial)*: `daily_usage` por perfil con retención de 30 días y escritura
+  por lotes fuera del hilo principal. *(Pendiente: migrar perfiles y reglas
+  a Room; hoy viven en preferencias cifradas con claves por perfil.)*
 - [ ] **Corrutinas/Flow** para operaciones asíncronas en vez de bloquear el
   hilo principal al leer preferencias.
 - [ ] Modularización (`:core`, `:data`, `:feature-launcher`,
