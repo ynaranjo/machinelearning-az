@@ -14,6 +14,7 @@ import com.kidsguard.app.databinding.ActivityParentDashboardBinding
 import com.kidsguard.app.service.AppMonitorService
 import com.kidsguard.app.service.ServiceWatchdogWorker
 import com.kidsguard.app.ui.pin.PinSetupActivity
+import com.kidsguard.app.util.DeviceOwnerManager
 import com.kidsguard.app.util.Permissions
 
 /**
@@ -113,9 +114,11 @@ class ParentDashboardActivity : AppCompatActivity() {
         prefs.childModeActive = true
         AppMonitorService.start(this)
         ServiceWatchdogWorker.schedule(this)
+        DeviceOwnerManager.applyChildModePolicies(this, prefs)
         Toast.makeText(this, R.string.child_mode_on, Toast.LENGTH_SHORT).show()
 
-        if (!Permissions.isDefaultLauncher(this)) {
+        // Con device owner el launcher queda fijado por política: no hace falta pedirlo.
+        if (!Permissions.isDefaultLauncher(this) && !DeviceOwnerManager.isDeviceOwner(this)) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.set_launcher_title)
                 .setMessage(R.string.set_launcher_msg)
@@ -131,6 +134,8 @@ class ParentDashboardActivity : AppCompatActivity() {
         prefs.childModeActive = false
         AppMonitorService.stop(this)
         ServiceWatchdogWorker.cancel(this)
+        DeviceOwnerManager.clearChildModePolicies(this)
+        runCatching { stopLockTask() }
         Toast.makeText(this, R.string.child_mode_off, Toast.LENGTH_SHORT).show()
     }
 }

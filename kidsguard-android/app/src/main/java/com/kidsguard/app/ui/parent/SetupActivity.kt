@@ -9,9 +9,11 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.kidsguard.app.R
 import com.kidsguard.app.databinding.ActivitySetupBinding
+import com.kidsguard.app.util.DeviceOwnerManager
 import com.kidsguard.app.util.Permissions
 
 /**
@@ -73,6 +75,13 @@ class SetupActivity : AppCompatActivity() {
             )
         }
         binding.btnLauncher.setOnClickListener { requestHomeRole() }
+        binding.btnOwner.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.owner_howto_title)
+                .setMessage(R.string.owner_howto_msg)
+                .setPositiveButton(R.string.ok, null)
+                .show()
+        }
 
         binding.btnDone.setOnClickListener {
             if (firstRun) {
@@ -107,6 +116,7 @@ class SetupActivity : AppCompatActivity() {
         binding.tvStatusNotif.text = status(Permissions.hasNotifications(this))
         binding.tvStatusAdmin.text = status(Permissions.isDeviceAdmin(this))
         binding.tvStatusLauncher.text = status(Permissions.isDefaultLauncher(this))
+        binding.tvStatusOwner.text = status(DeviceOwnerManager.isDeviceOwner(this))
     }
 
     private fun status(granted: Boolean): String = if (granted) "✅" else "❌"

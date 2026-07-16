@@ -80,6 +80,11 @@
     <string name="perm_admin_desc">Evita que el niño desinstale KidsGuard fácilmente.</string>
     <string name="perm_launcher_title">Launcher predeterminado</string>
     <string name="perm_launcher_desc">Hace que KidsGuard sea la pantalla de inicio y se abra al encender el dispositivo.</string>
+    <string name="how_to">Cómo</string>
+    <string name="perm_owner_title">Modo kiosco (propietario del dispositivo)</string>
+    <string name="perm_owner_desc">Protección máxima: encierra al niño en las apps permitidas (LockTask), fija el launcher, desactiva la barra de estado y bloquea el modo seguro. Requiere activación por ADB.</string>
+    <string name="owner_howto_title">Activar el modo kiosco</string>
+    <string name="owner_howto_msg">Solo en un dispositivo recién restablecido de fábrica y SIN cuenta Google añadida:\n\n1. Activa las opciones de desarrollador y la depuración USB.\n2. Conecta el dispositivo a un ordenador con ADB.\n3. Ejecuta:\n\nadb shell dpm set-device-owner com.kidsguard.app/.receiver.AdminReceiver\n\nAl activar el modo niños, KidsGuard quedará fijado como launcher, la barra de estado y el modo seguro se desactivarán, y el niño no podrá salir de las apps permitidas. Todo se revierte al desactivar el modo niños.</string>
 
     <!-- Bloqueo -->
     <string name="blocked_not_allowed_title">App no permitida</string>

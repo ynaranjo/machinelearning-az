@@ -1,6 +1,10 @@
 package com.kidsguard.app.ui.launcher
 
+import android.app.ActivityManager
+import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
@@ -16,6 +20,7 @@ import com.kidsguard.app.databinding.ActivityKidsHomeBinding
 import com.kidsguard.app.service.AppMonitorService
 import com.kidsguard.app.ui.pin.PinActivity
 import com.kidsguard.app.ui.pin.PinSetupActivity
+import com.kidsguard.app.util.DeviceOwnerManager
 import com.kidsguard.app.util.TimeRules
 
 /**
@@ -36,7 +41,7 @@ class KidsHomeActivity : AppCompatActivity() {
         prefs = PreferencesManager(this)
 
         adapter = AppGridAdapter { app ->
-            packageManager.getLaunchIntentForPackage(app.packageName)?.let { startActivity(it) }
+            packageManager.getLaunchIntentForPackage(app.packageName)?.let { launchApp(it) }
         }
         // Columnas según el ancho de pantalla: ~4 en móvil, más en tablet.
         val spanCount = (resources.configuration.screenWidthDp / 96).coerceIn(3, 8)
@@ -66,6 +71,39 @@ class KidsHomeActivity : AppCompatActivity() {
         refresh()
         if (prefs.childModeActive) {
             AppMonitorService.start(this)
+            DeviceOwnerManager.refreshLockTaskPackages(this, prefs)
+            maybeStartLockTask()
+        } else {
+            maybeStopLockTask()
+        }
+    }
+
+    /** En un app permitida el LockTask se hereda; el lanzamiento explícito es para P+. */
+    private fun launchApp(intent: Intent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+            DeviceOwnerManager.isDeviceOwner(this) && prefs.childModeActive
+        ) {
+            val options = ActivityOptions.makeBasic().apply { setLockTaskEnabled(true) }
+            runCatching { startActivity(intent, options.toBundle()) }
+                .onFailure { startActivity(intent) }
+        } else {
+            startActivity(intent)
+        }
+    }
+
+    /** Con device owner, encierra la sesión en las apps permitidas (kiosco). */
+    private fun maybeStartLockTask() {
+        if (!DeviceOwnerManager.isDeviceOwner(this)) return
+        val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        if (am.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
+            runCatching { startLockTask() }
+        }
+    }
+
+    private fun maybeStopLockTask() {
+        val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        if (am.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE) {
+            runCatching { stopLockTask() }
         }
     }
 

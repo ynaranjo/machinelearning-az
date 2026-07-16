@@ -30,6 +30,7 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 | 🗂️ Categorías *(v1.2)* | La selección de apps se agrupa por categoría del sistema (juegos, vídeo, social…) para configurar más rápido. |
 | ➕ Tiempo extra *(v1.4)* | Desde la pantalla de bloqueo, el adulto concede 15/30/60 min extra con su PIN, sin desactivar el modo niños. |
 | 🗂️ Límites por categoría *(v1.5)* | Tiempo máximo diario por tipo de app (juegos, vídeo, social…), sumando el uso de todas las apps de la categoría. |
+| 🔐 Modo kiosco *(v1.6)* | Con *device owner* (ADB): LockTask sobre las apps permitidas, launcher fijado por política, barra de estado desactivada y modo seguro/factory reset bloqueados. |
 | 👋 Asistente inicial *(v1.4)* | Pantalla de bienvenida que guía la configuración en 3 pasos: PIN → permisos → apps permitidas. |
 
 ## Estructura del proyecto
@@ -142,6 +143,21 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 Para salir del modo niños: toca el candado 🔒 del launcher infantil e
 introduce el PIN.
 
+### Modo kiosco (opcional, máxima protección)
+
+En un dispositivo **recién restablecido de fábrica y sin cuenta Google**,
+KidsGuard puede convertirse en *device owner*:
+
+```bash
+adb shell dpm set-device-owner com.kidsguard.app/.receiver.AdminReceiver
+```
+
+Con ello, al activar el modo niños: el niño queda encerrado en las apps
+permitidas (LockTask), el launcher se fija por política del sistema, la
+barra de estado se desactiva y el modo seguro y el factory reset quedan
+bloqueados. Todo se revierte al desactivar el modo niños. El estado se ve
+en «Permisos del sistema».
+
 ## Limitaciones conocidas
 
 - En algunos fabricantes (Xiaomi, Huawei…) hay que permitir además el
@@ -175,14 +191,18 @@ siguiente:
   `AppBlockerAccessibilityService` bloquea en tiempo real con
   `TYPE_WINDOW_STATE_CHANGED`; el sondeo queda como respaldo y contador de
   tiempo de uso.
-- [ ] **Modo Device Owner vía aprovisionamiento QR** (`DevicePolicyManager` +
-  NFC/QR en dispositivo recién reseteado): permite `LockTask` (kiosco real),
-  ocultar la barra de estado, bloquear ajustes por completo y impedir
-  factory reset — muy superior al modo *Device Admin* actual.
-- [ ] **`LockTaskMode` / Screen Pinning** como alternativa sin *device
-  owner* para reforzar el modo niños en apps individuales.
-- [ ] Detectar y bloquear el **modo seguro (Safe Mode)**, que en muchos
-  fabricantes permite saltarse apps de terceros.
+- [x] **Modo Device Owner (kiosco real)** ✅ *(v1.6)*: cuando KidsGuard es
+  *device owner* (activación por ADB documentada en la app y abajo), el
+  modo niños aplica `LockTask` sobre las apps permitidas, fija el launcher
+  por política (`addPersistentPreferredActivity`), desactiva la barra de
+  estado (`setStatusBarDisabled`) y bloquea el modo seguro y el factory
+  reset (`DISALLOW_SAFE_BOOT`, `DISALLOW_FACTORY_RESET`). Todo se revierte
+  al desactivar el modo niños. *(Pendiente: aprovisionamiento QR/NFC.)*
+- [x] **`LockTaskMode`** ✅ *(v1.6, con device owner)*: el launcher infantil
+  entra en LockTask y las apps permitidas se lanzan dentro del kiosco; sin
+  device owner se mantiene el flujo de overlay + accesibilidad.
+- [x] Bloquear el **modo seguro (Safe Mode)** ✅ *(v1.6, con device owner)*:
+  `DISALLOW_SAFE_BOOT` mientras el modo niños está activo.
 - [x] Detectar la revocación manual de permisos especiales y **notificar al
   adulto** ✅ *(v1.1)*: el servicio comprueba cada minuto que datos de uso,
   superposición y accesibilidad sigan concedidos. *(Pendiente: reforzar

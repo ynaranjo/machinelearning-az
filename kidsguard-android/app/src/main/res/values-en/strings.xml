@@ -80,6 +80,11 @@
     <string name="perm_admin_desc">Prevents your child from easily uninstalling KidsGuard.</string>
     <string name="perm_launcher_title">Default launcher</string>
     <string name="perm_launcher_desc">Makes KidsGuard the home screen so it opens when the device turns on.</string>
+    <string name="how_to">How</string>
+    <string name="perm_owner_title">Kiosk mode (device owner)</string>
+    <string name="perm_owner_desc">Maximum protection: locks your child into the allowed apps (LockTask), pins the launcher, disables the status bar and blocks safe mode. Requires ADB activation.</string>
+    <string name="owner_howto_title">Enable kiosk mode</string>
+    <string name="owner_howto_msg">Only on a freshly factory-reset device WITHOUT a Google account added:\n\n1. Enable developer options and USB debugging.\n2. Connect the device to a computer with ADB.\n3. Run:\n\nadb shell dpm set-device-owner com.kidsguard.app/.receiver.AdminReceiver\n\nWhen kids mode is enabled, KidsGuard will be pinned as the launcher, the status bar and safe mode will be disabled, and your child won\'t be able to leave the allowed apps. Everything is reverted when kids mode is turned off.</string>
 
     <!-- Blocking -->
     <string name="blocked_not_allowed_title">App not allowed</string>
