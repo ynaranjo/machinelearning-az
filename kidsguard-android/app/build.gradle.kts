@@ -4,6 +4,11 @@ plugins {
     id("org.jetbrains.kotlin.kapt")
 }
 
+// Firma de release: si las variables de entorno del keystore están
+// definidas (CI o máquina local), el APK de release sale firmado;
+// si no, se genera sin firmar como hasta ahora.
+val releaseKeystorePath: String? = System.getenv("KIDSGUARD_KEYSTORE_FILE")
+
 android {
     namespace = "com.kidsguard.app"
     compileSdk = 34
@@ -12,8 +17,19 @@ android {
         applicationId = "com.kidsguard.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.3.0"
+    }
+
+    signingConfigs {
+        if (releaseKeystorePath != null) {
+            create("release") {
+                storeFile = file(releaseKeystorePath)
+                storePassword = System.getenv("KIDSGUARD_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KIDSGUARD_KEY_ALIAS")
+                keyPassword = System.getenv("KIDSGUARD_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -24,6 +40,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 

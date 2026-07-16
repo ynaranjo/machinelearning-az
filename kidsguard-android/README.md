@@ -76,8 +76,36 @@ kidsguard-android/
 Cada push a la rama `claude/android-parental-control-wit63o` dispara un workflow que:
 - Compila versiones **Debug** y **Release** del APK
 - Las sube como artifacts (descargables durante 30 días)
+- Si haces push de un tag `v*`, publica el APK como Release de GitHub
 
 Ve a → **Actions** → **Build KidsGuard APK** → último run → **Artifacts**
+
+#### Firma del APK de release (opcional pero recomendado)
+
+Sin configurar nada, el release sale **sin firmar**. Para que el CI firme
+el APK (instalable directamente):
+
+1. Genera un keystore (guárdalo a buen recaudo; si lo pierdes no podrás
+   actualizar la app instalada):
+
+   ```bash
+   keytool -genkeypair -v -keystore kidsguard.keystore \
+     -alias kidsguard -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. Codifícalo en base64: `base64 -w0 kidsguard.keystore`
+
+3. En GitHub → **Settings → Secrets and variables → Actions**, crea:
+
+   | Secret | Valor |
+   |---|---|
+   | `KIDSGUARD_KEYSTORE_BASE64` | El keystore en base64 (paso 2) |
+   | `KIDSGUARD_KEYSTORE_PASSWORD` | Contraseña del keystore |
+   | `KIDSGUARD_KEY_ALIAS` | `kidsguard` (o el alias que usaras) |
+   | `KIDSGUARD_KEY_PASSWORD` | Contraseña de la clave |
+
+   Para compilar firmado en local, exporta las mismas variables de entorno
+   más `KIDSGUARD_KEYSTORE_FILE` con la ruta del keystore.
 
 ### Opción 2: Compilación local
 
@@ -229,12 +257,15 @@ siguiente:
 
 - [ ] Asistente de configuración inicial (*onboarding wizard*) que guíe
   paso a paso en vez de pantallas sueltas.
-- [ ] Tema oscuro completo y soporte de tablets (layouts adaptativos, hoy
-  la cuadrícula es fija a 4 columnas).
+- [x] Tema oscuro completo y cuadrícula adaptativa ✅ *(v1.3)*: paleta
+  `values-night` para todas las pantallas y columnas del launcher según el
+  ancho de pantalla (3–8, tablets incluidas). *(Pendiente: layouts
+  específicos de tablet para el panel.)*
 - [ ] Accesibilidad: `contentDescription` completos, tamaños de fuente
   dinámicos, soporte TalkBack.
-- [ ] Internacionalización real (`values-en`, `values-pt`…) — hoy todo el
-  texto está *hardcodeado* en español.
+- [x] Internacionalización ✅ *(v1.3, parcial)*: traducción completa al
+  inglés (`values-en`, 120/120 cadenas); el español queda como idioma por
+  defecto. *(Pendiente: más idiomas, p. ej. `values-pt`.)*
 - [ ] Animaciones y pulido visual del launcher infantil (hoy es una
   cuadrícula estática).
 - [ ] Icono de app y branding definitivos (el icono actual es un
@@ -242,8 +273,10 @@ siguiente:
 
 ### 6. CI/CD y distribución
 
-- [ ] Firma de release real: keystore gestionado con **Play App Signing** o
-  secrets de GitHub Actions (hoy el workflow genera un APK *sin firmar*).
+- [x] Firma de release con secrets de GitHub Actions ✅ *(v1.3)*: si los
+  secrets del keystore están configurados, el CI produce un APK firmado
+  (ver sección «Firma del APK de release»); sin ellos, sigue saliendo sin
+  firmar. *(Pendiente: Play App Signing al publicar.)*
 - [ ] Publicación automatizada a **Play Store** (interna → cerrada →
   producción) con `fastlane` o el `google-github-actions/upload-google-play`.
 - [ ] Versionado semántico automático y *changelog* por release.

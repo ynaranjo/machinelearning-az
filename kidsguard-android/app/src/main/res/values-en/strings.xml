@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KidsGuard</string>
+
+    <!-- Generic -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="grant">Grant</string>
+    <string name="done">Done</string>
+
+    <!-- Kids launcher -->
+    <string name="parent_access">Adult access</string>
+    <string name="no_apps_allowed">No apps allowed yet.\nAsk an adult to add them from the control panel.</string>
+    <string name="time_left_fmt">%1$s left</string>
+
+    <!-- PIN -->
+    <string name="pin_enter_title">Enter the adult PIN</string>
+    <string name="pin_setup_title">Create an adult PIN</string>
+    <string name="pin_change_title">New adult PIN</string>
+    <string name="pin_hint">PIN (4 to 8 digits)</string>
+    <string name="pin_confirm_hint">Confirm the PIN</string>
+    <string name="pin_error_wrong">Wrong PIN</string>
+    <string name="pin_error_short">The PIN must be at least 4 digits</string>
+    <string name="pin_error_mismatch">The PINs don\'t match</string>
+    <string name="pin_saved">PIN saved</string>
+
+    <!-- Parent dashboard -->
+    <string name="dashboard_title">Parental control panel</string>
+    <string name="child_mode">Kids mode</string>
+    <string name="child_mode_desc">While active, only allowed apps can be used.</string>
+    <string name="child_mode_on">Kids mode enabled</string>
+    <string name="child_mode_off">Kids mode disabled</string>
+    <string name="btn_apps">📱  Allowed apps</string>
+    <string name="btn_limits">⏱  Time limits</string>
+    <string name="btn_usage">📊  Today\'s usage</string>
+    <string name="btn_setup">🔐  System permissions</string>
+    <string name="btn_change_pin">🔑  Change PIN</string>
+    <string name="btn_launcher_settings">🏠  Change default launcher</string>
+    <string name="missing_permissions_title">Missing permissions</string>
+    <string name="missing_permissions_msg">To enable kids mode, first grant usage access and the display-over-other-apps permission.</string>
+    <string name="set_launcher_title">Set as home screen</string>
+    <string name="set_launcher_msg">For full protection, set KidsGuard as the default launcher. It will open automatically when the device turns on and when the home button is pressed.</string>
+
+    <!-- App selection -->
+    <string name="app_selection_title">Allowed apps</string>
+    <string name="app_selection_hint">Check the apps your child can use. All the others will be blocked.</string>
+
+    <!-- Time limits -->
+    <string name="limits_title">Time limits</string>
+    <string name="daily_limit">Daily usage limit</string>
+    <string name="daily_limit_desc">Maximum total app usage time per day.</string>
+    <string name="bedtime">Bedtime</string>
+    <string name="bedtime_desc">Blocks all apps during this schedule.</string>
+    <string name="bedtime_from">From</string>
+    <string name="bedtime_to">Until</string>
+    <string name="minutes_fmt">%1$d min</string>
+    <string name="per_app_hint">💡 To set a limit for a specific app, open “Today\'s usage” and tap the app.</string>
+
+    <!-- Usage -->
+    <string name="usage_title">Today\'s usage</string>
+    <string name="usage_total_fmt">Total usage today: %1$s</string>
+    <string name="no_limit">No limit</string>
+    <string name="limit_fmt">Limit: %1$d min</string>
+    <string name="set_limit_title">Daily limit for %1$s</string>
+    <string name="set_limit_hint">Minutes (empty = no limit)</string>
+
+    <!-- Permissions setup -->
+    <string name="setup_title">System permissions</string>
+    <string name="setup_intro">KidsGuard needs these permissions to protect the device:</string>
+    <string name="perm_usage_title">Usage data access</string>
+    <string name="perm_usage_desc">Needed to detect which app is open so it can be blocked.</string>
+    <string name="perm_overlay_title">Display over other apps</string>
+    <string name="perm_overlay_desc">Needed to show the blocking screen on top of apps that are not allowed.</string>
+    <string name="perm_notif_title">Notifications</string>
+    <string name="perm_notif_desc">Shows a notification while the protection is active.</string>
+    <string name="perm_admin_title">Device administrator</string>
+    <string name="perm_admin_desc">Prevents your child from easily uninstalling KidsGuard.</string>
+    <string name="perm_launcher_title">Default launcher</string>
+    <string name="perm_launcher_desc">Makes KidsGuard the home screen so it opens when the device turns on.</string>
+
+    <!-- Blocking -->
+    <string name="blocked_not_allowed_title">App not allowed</string>
+    <string name="blocked_not_allowed_msg">This app is not on the allowed list. Ask an adult to add it.</string>
+    <string name="blocked_daily_title">Time\'s up for today!</string>
+    <string name="blocked_daily_msg">You used all your screen time for today. You can keep playing tomorrow!</string>
+    <string name="blocked_app_limit_title">Time\'s up for this app</string>
+    <string name="blocked_app_limit_msg">You used all the time allowed for this app today.</string>
+    <string name="blocked_bedtime_title">Bedtime 🌙</string>
+    <string name="blocked_bedtime_msg">Time to rest. Apps will be available again tomorrow.</string>
+    <string name="btn_go_home">Back to home</string>
+
+    <!-- Service -->
+    <string name="notif_channel_name">KidsGuard protection</string>
+    <string name="notif_title">KidsGuard active</string>
+    <string name="notif_text">Protecting this device</string>
+
+    <!-- Device admin -->
+    <string name="admin_explanation">Enable the device administrator to prevent KidsGuard from being uninstalled without permission.</string>
+    <string name="admin_disable_warning">If you disable this option, the parental control can be uninstalled.</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_label">KidsGuard — App blocking</string>
+    <string name="accessibility_service_desc">KidsGuard uses this service only to instantly detect which app comes to the foreground and block it if an adult hasn\'t allowed it. It does not read or store screen content.</string>
+    <string name="perm_accessibility_title">Accessibility service</string>
+    <string name="perm_accessibility_desc">Instant blocking when switching apps, with no delay. Highly recommended.</string>
+    <string name="accessibility_recommend">💡 Recommended: enable the accessibility service in “System permissions” for instant blocking.</string>
+
+    <!-- PIN recovery -->
+    <string name="forgot_pin">Forgot your PIN?</string>
+    <string name="recovery_title">Recover PIN</string>
+    <string name="security_question_hint">Security question (e.g. your first pet\'s name)</string>
+    <string name="security_answer_hint">Secret answer</string>
+    <string name="security_answer_wrong">Wrong answer</string>
+    <string name="error_need_question">Write a security question and its answer so the PIN can be recovered</string>
+
+    <!-- Biometrics -->
+    <string name="biometric_title">Adult unlock</string>
+    <string name="biometric_prompt_subtitle">Confirm your identity with fingerprint or face</string>
+    <string name="biometric_use_pin">Use PIN</string>
+    <string name="biometric_switch">Fingerprint/face unlock</string>
+
+    <!-- Profiles -->
+    <string name="btn_profiles">👧  Child profiles</string>
+    <string name="profiles_hint">Each profile has its own allowed apps, limits and schedules. Tap a profile to activate it.</string>
+    <string name="active_profile_fmt">Active profile: %1$s</string>
+    <string name="add_profile">Add profile</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="delete_profile">Delete profile</string>
+    <string name="delete_profile_confirm">Delete the profile “%1$s”? Its allowed apps and limits will be lost.</string>
+    <string name="cannot_delete_last">At least one profile must exist</string>
+    <string name="profile_name_hint">Name</string>
+    <string name="profile_emoji_hint">Emoji (optional)</string>
+    <string name="profile_active">Active</string>
+
+    <!-- Weekly report -->
+    <string name="btn_weekly">📈  Weekly report</string>
+    <string name="weekly_title">Weekly report</string>
+    <string name="weekly_top_apps">Top apps of the week</string>
+    <string name="weekly_empty">No usage data this week yet.</string>
+
+    <!-- App categories -->
+    <string name="category_games">🎮 Games</string>
+    <string name="category_audio">🎵 Music &amp; audio</string>
+    <string name="category_video">🎬 Video</string>
+    <string name="category_image">📷 Photos &amp; images</string>
+    <string name="category_social">💬 Social</string>
+    <string name="category_news">📰 News</string>
+    <string name="category_maps">🗺️ Maps</string>
+    <string name="category_productivity">📝 Productivity</string>
+    <string name="category_other">📦 Other apps</string>
+
+    <!-- Adult alerts -->
+    <string name="alert_channel_name">Alerts for adults</string>
+    <string name="alert_blocked_attempt_title">Attempt to open a blocked app</string>
+    <string name="alert_blocked_attempt_text">“%1$s” tried to open and was blocked.</string>
+    <string name="alert_permission_lost_title">⚠️ Protection incomplete</string>
+    <string name="alert_permission_lost_text">Disabled: %1$s. Tap to restore it.</string>
+</resources>

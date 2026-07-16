@@ -38,7 +38,9 @@ class KidsHomeActivity : AppCompatActivity() {
         adapter = AppGridAdapter { app ->
             packageManager.getLaunchIntentForPackage(app.packageName)?.let { startActivity(it) }
         }
-        binding.rvApps.layoutManager = GridLayoutManager(this, 4)
+        // Columnas según el ancho de pantalla: ~4 en móvil, más en tablet.
+        val spanCount = (resources.configuration.screenWidthDp / 96).coerceIn(3, 8)
+        binding.rvApps.layoutManager = GridLayoutManager(this, spanCount)
         binding.rvApps.adapter = adapter
 
         binding.btnParent.setOnClickListener {
