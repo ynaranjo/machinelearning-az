@@ -278,8 +278,11 @@ siguiente:
   parcial)*: `daily_usage` por perfil con retención de 30 días y escritura
   por lotes fuera del hilo principal. *(Pendiente: migrar perfiles y reglas
   a Room; hoy viven en preferencias cifradas con claves por perfil.)*
-- [ ] **Corrutinas/Flow** para operaciones asíncronas en vez de bloquear el
-  hilo principal al leer preferencias.
+- [x] **Corrutinas/Flow** ✅ *(v1.11)*: la carga de apps e iconos
+  (PackageManager) en «Uso de hoy» y «Apps permitidas» se hace en
+  `viewModelScope` sobre `Dispatchers.Default` y se publica en un
+  `StateFlow` que la Activity observa con `repeatOnLifecycle`, evitando
+  bloquear el hilo principal (tirones/ANR con muchas apps).
 - [ ] Modularización (`:core`, `:data`, `:feature-launcher`,
   `:feature-parent`) si el proyecto crece.
 - [x] Tests ✅ *(v1.4–v1.9)*: la lógica pura se extrajo a helpers sin

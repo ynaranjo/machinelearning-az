@@ -2,14 +2,22 @@ package com.kidsguard.app.ui.parent
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.kidsguard.app.R
 import com.kidsguard.app.data.AppRepository
 import com.kidsguard.app.data.PreferencesManager
 import com.kidsguard.app.ui.parent.AppSelectionAdapter.SelectionItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
- * ViewModel de la selección de apps (MVVM): agrupa las apps instaladas por
- * categoría y persiste la lista blanca del perfil activo.
+ * ViewModel de la selección de apps (MVVM + corrutinas): agrupa las apps
+ * instaladas por categoría (fuera del hilo principal) y persiste la lista
+ * blanca del perfil activo.
  */
 class AppSelectionViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -18,8 +26,20 @@ class AppSelectionViewModel(app: Application) : AndroidViewModel(app) {
     val allowedApps: Set<String>
         get() = prefs.allowedApps
 
-    /** Lista de cabeceras de categoría + apps, lista para el adaptador. */
-    fun buildItems(): List<SelectionItem> {
+    private val _items = MutableStateFlow<List<SelectionItem>?>(null)
+    val items: StateFlow<List<SelectionItem>?> = _items.asStateFlow()
+
+    init {
+        load()
+    }
+
+    private fun load() {
+        viewModelScope.launch {
+            _items.value = withContext(Dispatchers.Default) { buildItems() }
+        }
+    }
+
+    private fun buildItems(): List<SelectionItem> {
         val otherLabel = getApplication<Application>().getString(R.string.category_other)
         val groups = AppRepository.getLaunchableApps(getApplication())
             .groupBy { it.category ?: otherLabel }

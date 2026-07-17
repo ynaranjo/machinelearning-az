@@ -7,15 +7,20 @@ import android.widget.FrameLayout
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kidsguard.app.R
 import com.kidsguard.app.databinding.ActivityUsageBinding
 import com.kidsguard.app.model.AppInfo
 import com.kidsguard.app.util.TimeRules
+import kotlinx.coroutines.launch
 
 /**
  * Muestra el tiempo de uso de hoy por app. Al tocar una app se puede fijar
- * su límite diario en minutos. El estado vive en UsageStatsViewModel (MVVM).
+ * su límite diario en minutos. El estado vive en UsageStatsViewModel (MVVM);
+ * la Activity observa su StateFlow y solo pinta.
  */
 class UsageStatsActivity : AppCompatActivity() {
 
@@ -27,15 +32,20 @@ class UsageStatsActivity : AppCompatActivity() {
         binding = ActivityUsageBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.rvUsage.layoutManager = LinearLayoutManager(this)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { data -> if (data != null) render(data) }
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        refresh()
+        viewModel.refresh()
     }
 
-    private fun refresh() {
-        val data = viewModel.load()
+    private fun render(data: UsageStatsViewModel.UsageData) {
         binding.tvTotal.text = getString(
             R.string.usage_total_fmt,
             TimeRules.formatDuration(data.totalSeconds)
@@ -62,7 +72,6 @@ class UsageStatsActivity : AppCompatActivity() {
             .setView(container)
             .setPositiveButton(R.string.save) { _, _ ->
                 viewModel.setAppLimit(app.packageName, input.text.toString().toIntOrNull())
-                refresh()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
