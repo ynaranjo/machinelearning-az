@@ -4,6 +4,14 @@ App de control parental estilo **Kids Place**: convierte el móvil o la tablet e
 entorno seguro para niños, donde **solo se pueden usar las apps que un adulto haya
 autorizado**. Se levanta automáticamente al encender el dispositivo.
 
+## 📚 Guías
+
+- 📥 **[Cómo descargar e instalar en Android](INSTALL.md)** — paso a paso, desde
+  obtener el APK hasta dejar la app configurada.
+- 🚀 **[Cómo publicar en Google Play](PUBLISHING.md)** — todos los pasos
+  necesarios: firma, App Bundle, declaraciones de permisos, Data Safety y envío.
+- 🔒 **[Política de privacidad](PRIVACY.md)** · ☁️ **[Backend de control remoto](../kidsguard-backend/README.md)**
+
 ## Funcionalidades
 
 | Función | Descripción |
