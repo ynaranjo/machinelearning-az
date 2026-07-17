@@ -291,8 +291,12 @@ siguiente:
   coincidencia de dominios y subdominios, aritmética de límites y tiempo
   restante). *(Pendiente: `PreferencesManager`/`BlockEvaluator` con
   Robolectric, instrumentados y Espresso.)*
-- [ ] Linting automático (`ktlint`/`detekt`) integrado en CI.
-- [ ] `isMinifyEnabled` + reglas ProGuard reales para el build de release.
+- [x] Linting automático ✅ *(v1.12)*: **detekt** integrado en el CI como
+  paso no bloqueante (`ignoreFailures = true` + `continue-on-error`), que
+  reporta avisos de calidad sin romper el build; se puede endurecer a
+  bloqueante cuando se resuelvan. *(Pendiente: baseline y reglas a medida.)*
+- [x] `isMinifyEnabled` + reglas ProGuard ✅ *(v1.1)*: R8 con
+  `shrinkResources` activo en release.
 
 ### 5. UX / UI
 

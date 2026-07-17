@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.kapt")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 // Firma de release: si las variables de entorno del keystore están
@@ -17,8 +18,8 @@ android {
         applicationId = "com.kidsguard.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 12
-        versionName = "1.11.0"
+        versionCode = 13
+        versionName = "1.12.0"
     }
 
     signingConfigs {
@@ -56,6 +57,15 @@ android {
     buildFeatures {
         viewBinding = true
     }
+}
+
+// Análisis estático (calidad de código). No bloquea el build: reporta en el
+// log del CI; el equipo puede endurecerlo a `ignoreFailures = false` más
+// adelante, cuando se hayan resuelto los avisos.
+detekt {
+    buildUponDefaultConfig = true
+    ignoreFailures = true
+    parallel = true
 }
 
 dependencies {

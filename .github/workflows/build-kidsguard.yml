@@ -45,6 +45,11 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Run detekt (static analysis, non-blocking)
+        working-directory: kidsguard-android
+        continue-on-error: true
+        run: gradle detekt --stacktrace
+
       - name: Run unit tests
         working-directory: kidsguard-android
         run: gradle testDebugUnitTest --stacktrace
