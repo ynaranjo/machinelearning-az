@@ -6,6 +6,8 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 
 ## 📚 Guías
 
+- 🍎 **[Preparar un Mac para desarrollo](DEVELOPMENT_MAC.md)** — dejar el entorno
+  listo paso a paso (JDK, Android Studio, SDK, compilar, firmar, backend).
 - 📥 **[Cómo descargar e instalar en Android](INSTALL.md)** — paso a paso, desde
   obtener el APK hasta dejar la app configurada.
 - 🚀 **[Cómo publicar en Google Play](PUBLISHING.md)** — todos los pasos
