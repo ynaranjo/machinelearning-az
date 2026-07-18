@@ -6,6 +6,10 @@ autorizado**. Se levanta automáticamente al encender el dispositivo.
 
 ## 📚 Guías
 
+- 📖 **[Manual de uso](MANUAL.md)** — manual profesional completo: cada pantalla,
+  cada función y preguntas frecuentes.
+- 🌐 **[Sitio web del producto](../kidsguard-website/index.html)** — landing
+  promocional lista para publicar (GitHub Pages, Netlify…).
 - 🍎 **[Preparar un Mac para desarrollo](DEVELOPMENT_MAC.md)** — dejar el entorno
   listo paso a paso (JDK, Android Studio, SDK, compilar, firmar, backend).
 - 📥 **[Cómo descargar e instalar en Android](INSTALL.md)** — paso a paso, desde

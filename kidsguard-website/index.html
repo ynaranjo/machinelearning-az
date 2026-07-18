@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KidsGuard — Control parental para Android</title>
+<meta name="description" content="KidsGuard convierte el móvil o la tablet en un entorno seguro para tus hijos: solo las apps que tú permitas, límites de tiempo, navegador filtrado y control remoto. Gratis y sin anuncios.">
+<style>
+  :root{
+    --primary:#4F6DF5; --primary-dark:#3550C8; --primary-soft:#EDF1FF;
+    --ink:#1A1B2E; --muted:#5A5D72; --bg:#FFFFFF; --bg-alt:#F5F7FF;
+    --card:#FFFFFF; --border:#E3E8F8; --accent:#FFB300; --ok:#2E7D32;
+    --radius:18px; --shadow:0 10px 30px rgba(26,27,46,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --primary:#7C93F8; --primary-dark:#5F79EE; --primary-soft:#1B2140;
+      --ink:#E8EAF6; --muted:#A9ADC4; --bg:#0F1220; --bg-alt:#141830;
+      --card:#191E38; --border:#262C4E; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);line-height:1.6}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  h1,h2,h3{line-height:1.2;letter-spacing:-.02em}
+  h2{font-size:clamp(1.6rem,3.5vw,2.3rem);text-align:center;margin-bottom:12px}
+  .sub{color:var(--muted);text-align:center;max-width:640px;margin:0 auto 48px;font-size:1.05rem}
+  section{padding:72px 0}
+  .alt{background:var(--bg-alt)}
+
+  /* Nav */
+  nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 85%,transparent);
+      backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .navin{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;text-decoration:none;color:var(--ink)}
+  .logo .shield{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));font-size:1.1rem}
+  .navlinks{display:flex;gap:26px;align-items:center}
+  .navlinks a{color:var(--muted);text-decoration:none;font-size:.95rem;font-weight:500}
+  .navlinks a:hover{color:var(--primary)}
+  @media(max-width:760px){.navlinks a:not(.btn){display:none}}
+
+  .btn{display:inline-block;background:var(--primary);color:#fff !important;font-weight:700;
+       padding:13px 26px;border-radius:999px;text-decoration:none;transition:.2s;border:none;cursor:pointer}
+  .btn:hover{background:var(--primary-dark);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;color:var(--primary) !important;border:2px solid var(--primary)}
+  .btn.ghost:hover{background:var(--primary-soft)}
+  .btn.small{padding:9px 20px;font-size:.9rem}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding:80px 0 72px}
+  @media(max-width:860px){.hero{grid-template-columns:1fr;text-align:center}}
+  .badge{display:inline-block;background:var(--primary-soft);color:var(--primary);
+         font-weight:700;font-size:.8rem;padding:6px 14px;border-radius:999px;margin-bottom:18px;
+         letter-spacing:.04em;text-transform:uppercase}
+  .hero h1{font-size:clamp(2.1rem,5vw,3.2rem);font-weight:850;margin-bottom:18px}
+  .hero h1 em{font-style:normal;color:var(--primary)}
+  .hero p{color:var(--muted);font-size:1.12rem;max-width:520px;margin-bottom:28px}
+  @media(max-width:860px){.hero p{margin:0 auto 28px}}
+  .cta{display:flex;gap:14px;flex-wrap:wrap}
+  @media(max-width:860px){.cta{justify-content:center}}
+  .heronote{margin-top:14px;font-size:.85rem;color:var(--muted)}
+
+  /* Phone mockup */
+  .phone{width:270px;margin:0 auto;background:var(--ink);border-radius:38px;padding:12px;
+         box-shadow:var(--shadow), inset 0 0 0 2px rgba(255,255,255,.06)}
+  @media (prefers-color-scheme: dark){.phone{background:#000}}
+  .screen{background:linear-gradient(180deg,var(--primary-soft),var(--bg));border-radius:28px;
+          overflow:hidden;padding:18px 14px 22px;min-height:480px}
+  .statusrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .clock{font-weight:800;font-size:1.25rem}
+  .chip{background:var(--card);border:1px solid var(--border);border-radius:999px;
+        padding:4px 10px;font-size:.72rem;color:var(--muted);font-weight:600}
+  .timeleft{text-align:center;font-size:.8rem;color:var(--primary);font-weight:700;margin-bottom:14px}
+  .grid-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .appicon{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.62rem;color:var(--muted)}
+  .appicon .ic{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;font-size:1.5rem;
+        background:var(--card);border:1px solid var(--border);box-shadow:0 3px 8px rgba(26,27,46,.06)}
+  .lockrow{display:flex;justify-content:center;margin-top:20px}
+  .lockbtn{background:var(--card);border:1px solid var(--border);border-radius:999px;
+        padding:8px 22px;font-size:.85rem;font-weight:700;color:var(--muted)}
+
+  /* Stats strip */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+  @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat b{display:block;font-size:1.7rem;color:var(--primary);font-weight:850}
+  .stat span{color:var(--muted);font-size:.9rem}
+
+  /* Features */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+        padding:26px;transition:.2s}
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+  .card .emoji{font-size:1.9rem;display:inline-grid;place-items:center;width:54px;height:54px;
+        background:var(--primary-soft);border-radius:15px;margin-bottom:14px}
+  .card h3{font-size:1.08rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.94rem}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;counter-reset:step}
+  @media(max-width:760px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;position:relative}
+  .step::before{counter-increment:step;content:counter(step);position:absolute;top:-18px;left:24px;
+        width:38px;height:38px;border-radius:50%;background:var(--primary);color:#fff;font-weight:800;
+        display:grid;place-items:center;font-size:1.05rem;box-shadow:var(--shadow)}
+  .step h3{margin:8px 0 8px}
+  .step p{color:var(--muted);font-size:.95rem}
+
+  /* Split sections */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+  @media(max-width:860px){.split{grid-template-columns:1fr}}
+  .split h2{text-align:left}
+  .split .sub2{color:var(--muted);margin-bottom:20px}
+  .ticks{list-style:none}
+  .ticks li{padding:9px 0 9px 34px;position:relative;color:var(--ink)}
+  .ticks li::before{content:"✓";position:absolute;left:0;top:9px;width:24px;height:24px;border-radius:50%;
+        background:var(--primary-soft);color:var(--primary);font-weight:800;display:grid;place-items:center;font-size:.85rem}
+  .panelmock{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+        padding:22px;box-shadow:var(--shadow)}
+  .panelmock h4{font-size:.95rem;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+  .pill{font-size:.7rem;background:var(--primary-soft);color:var(--primary);border-radius:999px;padding:3px 10px;font-weight:700}
+  .usage{margin-bottom:12px}
+  .usage .lbl{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);margin-bottom:5px}
+  .bar{height:9px;background:var(--primary-soft);border-radius:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-dark));border-radius:6px}
+  .rowbtns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .minibtn{font-size:.8rem;font-weight:700;border-radius:999px;padding:8px 14px;background:var(--primary);color:#fff}
+  .minibtn.o{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+
+  /* FAQ */
+  details{background:var(--card);border:1px solid var(--border);border-radius:14px;
+          padding:18px 22px;margin-bottom:12px;max-width:760px;margin-left:auto;margin-right:auto}
+  summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::after{content:"+";color:var(--primary);font-size:1.3rem;font-weight:800}
+  details[open] summary::after{content:"–"}
+  details p{color:var(--muted);margin-top:10px;font-size:.95rem}
+
+  /* Download */
+  .dl{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:26px;
+      padding:56px 40px;text-align:center;color:#fff}
+  .dl h2{color:#fff}
+  .dl p{color:rgba(255,255,255,.85);max-width:560px;margin:0 auto 28px}
+  .dl .btn{background:#fff;color:var(--primary-dark) !important}
+  .dl .btn:hover{background:#eef;transform:translateY(-1px)}
+  .dl small{display:block;margin-top:16px;color:rgba(255,255,255,.7)}
+
+  footer{padding:44px 0;border-top:1px solid var(--border)}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:.9rem}
+  .foot a{color:var(--muted);text-decoration:none;margin-left:18px}
+  .foot a:hover{color:var(--primary)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap navin">
+    <a class="logo" href="#"><span class="shield">🛡️</span> KidsGuard</a>
+    <div class="navlinks">
+      <a href="#funciones">Funciones</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#remoto">Control remoto</a>
+      <a href="#faq">Preguntas</a>
+      <a class="btn small" href="#descargar">Descargar</a>
+    </div>
+  </div>
+</nav>
+
+<header class="wrap hero">
+  <div>
+    <span class="badge">Gratis · Sin anuncios · Código abierto</span>
+    <h1>El móvil de tus hijos, <em>bajo tu control</em>. Siempre.</h1>
+    <p>KidsGuard convierte cualquier Android en un espacio seguro: tus hijos solo
+       usan las apps que tú permitas, con límites de tiempo, hora de dormir y un
+       navegador con filtro infantil. Tú mandas, incluso a distancia.</p>
+    <div class="cta">
+      <a class="btn" href="#descargar">Descargar para Android</a>
+      <a class="btn ghost" href="#como">Ver cómo funciona</a>
+    </div>
+    <div class="heronote">Android 8.0+ · Español e inglés · Sin cuentas ni suscripciones</div>
+  </div>
+  <div class="phone" aria-hidden="true">
+    <div class="screen">
+      <div class="statusrow"><span class="clock">17:42</span><span class="chip">🧒 Martina</span></div>
+      <div class="timeleft">⏱ Quedan 1h 05m</div>
+      <div class="grid-apps">
+        <div class="appicon"><span class="ic">🎨</span>Dibujar</div>
+        <div class="appicon"><span class="ic">🧩</span>Puzles</div>
+        <div class="appicon"><span class="ic">📚</span>Leer</div>
+        <div class="appicon"><span class="ic">🎵</span>Música</div>
+        <div class="appicon"><span class="ic">🔢</span>Mates</div>
+        <div class="appicon"><span class="ic">🌐</span>Navegador</div>
+      </div>
+      <div class="lockrow"><span class="lockbtn">🔒 Soy adulto</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="alt">
+  <div class="wrap stats">
+    <div class="stat"><b>100%</b><span>local y privado por defecto</span></div>
+    <div class="stat"><b>0</b><span>anuncios y rastreadores</span></div>
+    <div class="stat"><b>4</b><span>tipos de límites de tiempo</span></div>
+    <div class="stat"><b>∞</b><span>perfiles de hijos</span></div>
+  </div>
+</section>
+
+<section id="funciones">
+  <div class="wrap">
+    <h2>Todo lo que esperas de un control parental. Y más.</h2>
+    <p class="sub">Diseñado para familias reales: fácil para el adulto, imposible de
+       saltarse para el niño.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">📱</span><h3>Solo sus apps</h3>
+        <p>El niño ve una pantalla de inicio con las apps que tú apruebes. Ajustes,
+           tienda y todo lo demás quedan bloqueados al instante.</p></div>
+      <div class="card"><span class="emoji">⚡</span><h3>Bloqueo instantáneo</h3>
+        <p>Detección en tiempo real de la app en pantalla. Si no está permitida,
+           se bloquea antes de que pueda usarse.</p></div>
+      <div class="card"><span class="emoji">⏱</span><h3>Límites de tiempo</h3>
+        <p>Límite diario total, por app, por categoría (juegos, vídeo, social…) y
+           hora de dormir. El contador se reinicia cada día.</p></div>
+      <div class="card"><span class="emoji">🌐</span><h3>Navegador infantil</h3>
+        <p>Con SafeSearch forzado, YouTube restringido y listas de sitios
+           permitidos o bloqueados que tú decides.</p></div>
+      <div class="card"><span class="emoji">👧</span><h3>Perfiles por hijo</h3>
+        <p>¿Tablet compartida? Cada hijo tiene sus apps, sus límites y sus
+           estadísticas. Cambia de perfil en dos toques.</p></div>
+      <div class="card"><span class="emoji">📊</span><h3>Informes claros</h3>
+        <p>Uso de hoy por app e informe semanal con el top de apps. Sabrás en qué
+           se va el tiempo de pantalla.</p></div>
+      <div class="card"><span class="emoji">🔑</span><h3>Tiempo extra con PIN</h3>
+        <p>¿Se acabó el tiempo pero hoy toca premio? Concede 15, 30 o 60 minutos
+           con tu PIN, sin desactivar nada.</p></div>
+      <div class="card"><span class="emoji">🔐</span><h3>Modo kiosco total</h3>
+        <p>Como propietario del dispositivo, KidsGuard bloquea la barra de estado,
+           el modo seguro y cualquier vía de escape.</p></div>
+      <div class="card"><span class="emoji">🕵️</span><h3>Privacidad de verdad</h3>
+        <p>Sin cuentas, sin anuncios, sin enviar datos a nadie. Todo cifrado en el
+           dispositivo. El código es abierto y auditable.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="como">
+  <div class="wrap">
+    <h2>Protegido en 3 pasos</h2>
+    <p class="sub">De la instalación a entregar el dispositivo, en menos de cinco minutos.</p>
+    <div class="steps">
+      <div class="step"><h3>Crea tu PIN</h3>
+        <p>Un PIN de adulto (o tu huella) protege toda la configuración. Con
+           pregunta de seguridad por si lo olvidas.</p></div>
+      <div class="step"><h3>Elige las apps</h3>
+        <p>Marca las apps que tu hijo puede usar, agrupadas por categorías, y
+           ajusta sus límites de tiempo.</p></div>
+      <div class="step"><h3>Activa el modo niños</h3>
+        <p>Entrega el dispositivo tranquilo: al encenderse, siempre arranca en la
+           pantalla infantil. Solo tu PIN abre la puerta.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="remoto">
+  <div class="wrap split">
+    <div>
+      <h2>Control remoto desde tu navegador</h2>
+      <p class="sub2">Opcional y bajo tu control: empareja el dispositivo con tu
+         propio servidor familiar (incluido en el proyecto) y gestiona todo a
+         distancia desde un panel web.</p>
+      <ul class="ticks">
+        <li>Mira el uso de hoy de cada dispositivo, app por app</li>
+        <li>Concede tiempo extra sin levantarte del sofá</li>
+        <li>Activa o desactiva el modo niños a distancia</li>
+        <li>Tus datos en <b>tu</b> servidor: nadie más los ve</li>
+      </ul>
+    </div>
+    <div class="panelmock" aria-hidden="true">
+      <h4>📱 Tablet de Martina <span class="pill">🟢 Modo niños activo</span></h4>
+      <div class="usage"><div class="lbl"><span>Uso de hoy</span><span><b>1h 55m</b> / 3h</span></div>
+        <div class="bar"><i style="width:64%"></i></div></div>
+      <div class="usage"><div class="lbl"><span>🎨 Dibujar</span><span>48m</span></div>
+        <div class="bar"><i style="width:40%"></i></div></div>
+      <div class="usage"><div class="lbl"><span>🧩 Puzles</span><span>35m</span></div>
+        <div class="bar"><i style="width:29%"></i></div></div>
+      <div class="usage"><div class="lbl"><span>🌐 Navegador</span><span>32m</span></div>
+        <div class="bar"><i style="width:27%"></i></div></div>
+      <div class="rowbtns">
+        <span class="minibtn">➕ Conceder 30 min</span>
+        <span class="minibtn o">Desactivar modo niños</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap split">
+    <div class="panelmock" aria-hidden="true">
+      <h4>🔐 Blindaje anti-trucos</h4>
+      <ul class="ticks" style="font-size:.95rem">
+        <li>Arranca protegido al encender el dispositivo</li>
+        <li>Se relanza solo si el sistema lo cierra</li>
+        <li>Anti-desinstalación con administrador de dispositivo</li>
+        <li>Modo seguro y factory reset bloqueados (kiosco)</li>
+        <li>Te avisa si alguien toca los permisos</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Pensado contra los pequeños hackers de la casa</h2>
+      <p class="sub2">Los niños son listos. KidsGuard lo es más: cada vía de escape
+         conocida está cerrada, y si algo cambia, recibes una alerta al momento.</p>
+      <ul class="ticks">
+        <li>Las llamadas de emergencia nunca se bloquean</li>
+        <li>PIN cifrado — ni siquiera la app lo conoce</li>
+        <li>Recuperación con pregunta de seguridad</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>Preguntas frecuentes</h2>
+    <p class="sub">Lo que las familias nos preguntan antes de empezar.</p>
+    <details>
+      <summary>¿KidsGuard es gratis de verdad?</summary>
+      <p>Sí. Es un proyecto de código abierto, sin anuncios, sin compras dentro de
+         la app y sin suscripciones. Puedes revisar el código tú mismo.</p>
+    </details>
+    <details>
+      <summary>¿Qué datos recopila de mi hijo?</summary>
+      <p>Ninguno que salga del dispositivo. El tiempo de uso se guarda cifrado en
+         el propio equipo. Solo si tú activas el control remoto, los datos van a un
+         servidor que tú mismo alojas — nunca a terceros.</p>
+    </details>
+    <details>
+      <summary>¿Mi hijo puede desinstalarla o saltársela?</summary>
+      <p>Con la configuración recomendada, no: la protección se reactiva al
+         reiniciar, un vigilante relanza el servicio y la desinstalación exige
+         desactivar antes el administrador de dispositivo con tu PIN. Con el modo
+         kiosco, el cierre es total.</p>
+    </details>
+    <details>
+      <summary>¿Funciona en tablets y para varios hermanos?</summary>
+      <p>Sí. La pantalla infantil se adapta a tablets, y los perfiles permiten que
+         cada hermano tenga sus propias apps, límites y estadísticas en el mismo
+         dispositivo.</p>
+    </details>
+    <details>
+      <summary>¿Qué necesito para instalarla?</summary>
+      <p>Un Android 8.0 o superior y cinco minutos. Descarga el APK, concede los
+         permisos que la propia app te va indicando y elige las apps permitidas.
+         Tienes la guía paso a paso en la documentación.</p>
+    </details>
+    <details>
+      <summary>¿Y si olvido mi PIN?</summary>
+      <p>Usa «¿Olvidaste el PIN?» y responde tu pregunta de seguridad para crear
+         uno nuevo. También puedes entrar con tu huella si activaste la biometría.</p>
+    </details>
+  </div>
+</section>
+
+<section id="descargar">
+  <div class="wrap">
+    <div class="dl">
+      <h2>Empieza a proteger hoy</h2>
+      <p>Descarga KidsGuard para Android, configúralo en cinco minutos y entrega
+         el dispositivo sin preocupaciones.</p>
+      <a class="btn" href="https://github.com/ynaranjo/machinelearning-az/actions/workflows/build-kidsguard.yml">⬇️ Descargar APK (GitHub Actions)</a>
+      <small>Android 8.0+ · Guía de instalación incluida en el repositorio (INSTALL.md)</small>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <span>🛡️ <b>KidsGuard</b> — Control parental de código abierto</span>
+    <span>
+      <a href="https://github.com/ynaranjo/machinelearning-az/tree/claude/android-parental-control-wit63o/kidsguard-android">Código</a>
+      <a href="https://github.com/ynaranjo/machinelearning-az/blob/claude/android-parental-control-wit63o/kidsguard-android/MANUAL.md">Manual</a>
+      <a href="https://github.com/ynaranjo/machinelearning-az/blob/claude/android-parental-control-wit63o/kidsguard-android/PRIVACY.md">Privacidad</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>
